@@ -122,6 +122,66 @@ export const getRecords = async (req, res) => {
   try {
     const { babyId, startDate, endDate, limit = 50 } = req.query;
 
+    // 使用 Supabase
+    if (supabase) {
+      // 获取用户所属的家庭 ID
+      const { data: familyMembers } = await supabase
+        .from('FamilyMember')
+        .select('familyId')
+        .eq('userId', req.user.id);
+
+      if (!familyMembers || familyMembers.length === 0) {
+        return res.json([]);
+      }
+
+      const familyIds = familyMembers.map(m => m.familyId);
+
+      // 构建查询
+      let query = supabase
+        .from('FeedingRecord')
+        .select('*')
+        .in('familyId', familyIds);
+
+      if (babyId) {
+        query = query.eq('babyId', babyId);
+      }
+
+      if (startDate) {
+        query = query.gte('feedingTime', new Date(startDate).toISOString());
+      }
+
+      if (endDate) {
+        query = query.lte('feedingTime', new Date(endDate).toISOString());
+      }
+
+      query = query.order('feedingTime', { ascending: false }).limit(parseInt(limit));
+
+      const { data: records, error } = await query;
+
+      if (error) throw error;
+
+      // 获取所有记录人的用户名
+      const userIds = [...new Set(records?.map(r => r.recordedBy) || [])];
+      const { data: users } = await supabase
+        .from('User')
+        .select('id, username')
+        .in('id', userIds);
+
+      const userMap = new Map(users?.map(u => [u.id, u.username]) || []);
+
+      const formattedRecords = records?.map(record => ({
+        ...record,
+        recordedByName: userMap.get(record.recordedBy) || 'Unknown',
+      })) || [];
+
+      return res.json(formattedRecords);
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
+
     const where = {
       baby: {
         family: {
@@ -181,6 +241,61 @@ export const updateRecord = async (req, res) => {
     const { id } = req.params;
     const { feedingType, amount, unit, duration, feedingTime, note } = req.body;
 
+    // 使用 Supabase
+    if (supabase) {
+      // 获取记录信息验证权限
+      const { data: record } = await supabase
+        .from('FeedingRecord')
+        .select('familyId, babyId')
+        .eq('id', id)
+        .single();
+
+      if (!record) {
+        return res.status(404).json({ error: '记录不存在' });
+      }
+
+      // 验证用户是否属于该家庭
+      const { data: member } = await supabase
+        .from('FamilyMember')
+        .select('id')
+        .eq('familyId', record.familyId)
+        .eq('userId', req.user.id)
+        .single();
+
+      if (!member) {
+        return res.status(403).json({ error: '无权修改该记录' });
+      }
+
+      const updateData = {
+        updatedAt: new Date().toISOString(),
+      };
+      if (feedingType) updateData.feedingType = feedingType;
+      if (amount !== undefined) updateData.amount = amount ? parseFloat(amount) : null;
+      if (unit) updateData.unit = unit;
+      if (duration !== undefined) updateData.duration = duration ? parseInt(duration) : null;
+      if (feedingTime) updateData.feedingTime = new Date(feedingTime).toISOString();
+      if (note !== undefined) updateData.note = note;
+
+      const { data: updatedRecord, error } = await supabase
+        .from('FeedingRecord')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return res.json({
+        ...updatedRecord,
+        recordedByName: req.user.username,
+      });
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
+
     // 验证记录是否属于用户
     const existingRecord = await prisma.feedingRecord.findFirst({
       where: {
@@ -234,6 +349,46 @@ export const updateRecord = async (req, res) => {
 export const deleteRecord = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // 使用 Supabase
+    if (supabase) {
+      // 获取记录信息
+      const { data: record } = await supabase
+        .from('FeedingRecord')
+        .select('familyId')
+        .eq('id', id)
+        .single();
+
+      if (!record) {
+        return res.status(404).json({ error: '记录不存在' });
+      }
+
+      // 验证用户是否属于该家庭
+      const { data: member } = await supabase
+        .from('FamilyMember')
+        .select('id')
+        .eq('familyId', record.familyId)
+        .eq('userId', req.user.id)
+        .single();
+
+      if (!member) {
+        return res.status(403).json({ error: '无权删除该记录' });
+      }
+
+      const { error } = await supabase
+        .from('FeedingRecord')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      return res.status(204).send();
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
 
     const existingRecord = await prisma.feedingRecord.findFirst({
       where: {
