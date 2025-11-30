@@ -4,7 +4,7 @@ import path from 'path'
 // import { VitePWA } from 'vite-plugin-pwa' // 需要时取消注释并安装: npm install -D vite-plugin-pwa
 
 export default defineConfig({
-  base: '/baohuriji_online/',
+  base: '/',
   plugins: [
     react(),
     // 启用 PWA（需要安装 vite-plugin-pwa）
@@ -58,6 +58,13 @@ export default defineConfig({
   server: {
     port: 5173,
     open: false,
+    proxy: {
+      '/api': {
+        target: 'https://api.baobeiriji.top',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+      }
+    }
   },
   build: {
     // 代码分割优化

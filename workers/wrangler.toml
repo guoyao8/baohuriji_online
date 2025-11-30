@@ -6,14 +6,15 @@ node_compat = true
 # CORS 允许的源
 [env.production.vars]
 ENVIRONMENT = "production"
-ALLOWED_ORIGINS = "https://guoyao8.github.io"
+ALLOWED_ORIGINS = "https://baobeiriji.top"
 JWT_SECRET = "baohuriji-secret-key-2024"
 DATABASE_URL = "mysql://guoyao:91TohnXnJuertVZx@mysql2.sqlpub.com:3307/baobeiriji"
 
-# 使用 workers.dev 子域名
+# 自定义域名路由
 [env.production]
 name = "baohuriji-api-production"
-workers_dev = true
+route = "api.baobeiriji.top/*"
+zone_id = "8273d0cb018f3c482abb4dd5d78726e1"
 
 [env.development]
 vars = { ENVIRONMENT = "development", ALLOWED_ORIGINS = "http://localhost:5173", JWT_SECRET = "dev-secret-key", DATABASE_URL = "mysql://guoyao:91TohnXnJuertVZx@mysql2.sqlpub.com:3307/baobeiriji" }
