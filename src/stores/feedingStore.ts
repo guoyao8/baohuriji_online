@@ -6,13 +6,14 @@ interface FeedingState {
   babies: Baby[];
   currentBabyId: string | null;
   records: FeedingRecord[];
+  recordsCache: Record<string, FeedingRecord[]>; // 每个宝宝的记录缓存
   isLoading: boolean;
   fetchBabies: () => Promise<void>;
   setCurrentBaby: (babyId: string) => void;
   addBaby: (baby: Partial<Baby>) => Promise<void>;
   updateBaby: (id: string, baby: Partial<Baby>) => Promise<void>;
   deleteBaby: (id: string) => Promise<void>;
-  fetchRecords: (babyId?: string) => Promise<void>;
+  fetchRecords: (babyId?: string, useCache?: boolean) => Promise<void>;
   addRecord: (record: Partial<FeedingRecord>) => Promise<void>;
   updateRecord: (id: string, record: Partial<FeedingRecord>) => Promise<void>;
   deleteRecord: (id: string) => Promise<void>;
@@ -22,6 +23,7 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
   babies: [],
   currentBabyId: localStorage.getItem('currentBabyId') || null,
   records: [],
+  recordsCache: {}, // 缓存对象
   isLoading: false,
 
   fetchBabies: async () => {
@@ -42,6 +44,17 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
   setCurrentBaby: (babyId: string) => {
     set({ currentBabyId: babyId });
     localStorage.setItem('currentBabyId', babyId);
+    
+    // 切换宝宝时，先从缓存加载数据（即时响应）
+    const cache = get().recordsCache;
+    if (cache[babyId]) {
+      set({ records: cache[babyId] });
+    } else {
+      set({ records: [] }); // 没有缓存则清空
+    }
+    
+    // 后台异步刷新最新数据
+    get().fetchRecords(babyId, false);
   },
 
   addBaby: async (baby: Partial<Baby>) => {
@@ -94,11 +107,29 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
     }
   },
 
-  fetchRecords: async (babyId?: string) => {
+  fetchRecords: async (babyId?: string, useCache = true) => {
+    const targetBabyId = babyId || get().currentBabyId;
+    if (!targetBabyId) return;
+    
+    // 如果允许使用缓存且有缓存，先显示缓存
+    const cache = get().recordsCache;
+    if (useCache && cache[targetBabyId]) {
+      set({ records: cache[targetBabyId] });
+    }
+    
     set({ isLoading: true });
     try {
-      const records = await feedingService.getRecords({ babyId, limit: 50 });
-      set({ records, isLoading: false });
+      const records = await feedingService.getRecords({ babyId: targetBabyId, limit: 50 });
+      
+      // 更新缓存
+      set((state) => ({
+        records,
+        recordsCache: {
+          ...state.recordsCache,
+          [targetBabyId]: records,
+        },
+        isLoading: false,
+      }));
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -109,10 +140,19 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
     set({ isLoading: true });
     try {
       const newRecord = await feedingService.createRecord(record);
-      set((state) => ({
-        records: [newRecord, ...state.records],
-        isLoading: false,
-      }));
+      set((state) => {
+        const updatedRecords = [newRecord, ...state.records];
+        const babyId = newRecord.babyId;
+        
+        return {
+          records: updatedRecords,
+          recordsCache: {
+            ...state.recordsCache,
+            [babyId]: updatedRecords, // 更新缓存
+          },
+          isLoading: false,
+        };
+      });
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -123,10 +163,19 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
     set({ isLoading: true });
     try {
       const updatedRecord = await feedingService.updateRecord(id, record);
-      set((state) => ({
-        records: state.records.map((r) => (r.id === id ? updatedRecord : r)),
-        isLoading: false,
-      }));
+      set((state) => {
+        const updatedRecords = state.records.map((r) => (r.id === id ? updatedRecord : r));
+        const babyId = updatedRecord.babyId;
+        
+        return {
+          records: updatedRecords,
+          recordsCache: {
+            ...state.recordsCache,
+            [babyId]: updatedRecords, // 更新缓存
+          },
+          isLoading: false,
+        };
+      });
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -137,10 +186,19 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
     set({ isLoading: true });
     try {
       await feedingService.deleteRecord(id);
-      set((state) => ({
-        records: state.records.filter((r) => r.id !== id),
-        isLoading: false,
-      }));
+      set((state) => {
+        const updatedRecords = state.records.filter((r) => r.id !== id);
+        const currentBabyId = state.currentBabyId;
+        
+        return {
+          records: updatedRecords,
+          recordsCache: currentBabyId ? {
+            ...state.recordsCache,
+            [currentBabyId]: updatedRecords, // 更新缓存
+          } : state.recordsCache,
+          isLoading: false,
+        };
+      });
     } catch (error) {
       set({ isLoading: false });
       throw error;
