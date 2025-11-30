@@ -11,7 +11,7 @@ export default function AddRecord() {
   const { babies, currentBabyId, setCurrentBaby, addRecord } = useFeedingStore();
   
   const [feedingType, setFeedingType] = useState<FeedingType>('formula');
-  const [amount, setAmount] = useState<number>(150);
+  const [amount, setAmount] = useState<number | ''>(150);
   const [duration, setDuration] = useState<number>(0);
   const [feedingTime, setFeedingTime] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -68,13 +68,13 @@ export default function AddRecord() {
       if (duration > 0) {
         Object.assign(record, { duration });
       }
-      if (amount > 0) {
+      if (amount && amount > 0) {
         Object.assign(record, { amount, unit: 'ml' });
       }
     } else if (feedingType === 'formula') {
-      Object.assign(record, { amount, unit: 'ml' });
+      Object.assign(record, { amount: amount || 0, unit: 'ml' });
     } else if (feedingType === 'solid') {
-      Object.assign(record, { amount, unit: '斤' });
+      Object.assign(record, { amount: amount || 0, unit: '斤' });
     }
 
     try {
@@ -138,7 +138,7 @@ export default function AddRecord() {
               <button
                 onClick={() => {
                   setFeedingType('breast');
-                  setAmount(0);
+                  setAmount('');
                 }}
                 className={`flex flex-col items-center justify-center gap-2 rounded-xl border py-3 ${
                   feedingType === 'breast'
@@ -241,7 +241,7 @@ export default function AddRecord() {
                   className="w-full rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-4 text-center text-3xl font-bold text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:border-primary focus:ring-primary"
                   type="number"
                   value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
+                  onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
                 />
                 <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500 dark:text-zinc-400">
                   {getUnitForType()}
@@ -250,25 +250,25 @@ export default function AddRecord() {
               {feedingType === 'formula' && (
                 <div className="mt-2 grid grid-cols-5 gap-2">
                   <button
-                    onClick={() => setAmount((prev) => Math.max(0, prev - 30))}
+                    onClick={() => setAmount((prev) => Math.max(0, (prev || 0) - 30))}
                     className="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
                   >
                     -30
                   </button>
                   <button
-                    onClick={() => setAmount((prev) => Math.max(0, prev - 10))}
+                    onClick={() => setAmount((prev) => Math.max(0, (prev || 0) - 10))}
                     className="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
                   >
                     -10
                   </button>
                   <button
-                    onClick={() => setAmount((prev) => prev + 10)}
+                    onClick={() => setAmount((prev) => (prev || 0) + 10)}
                     className="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
                   >
                     +10
                   </button>
                   <button
-                    onClick={() => setAmount((prev) => prev + 30)}
+                    onClick={() => setAmount((prev) => (prev || 0) + 30)}
                     className="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300"
                   >
                     +30
@@ -292,8 +292,8 @@ export default function AddRecord() {
                   className="w-full rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-4 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:border-primary focus:ring-primary"
                   placeholder="例如: 120"
                   type="number"
-                  value={amount || ''}
-                  onChange={(e) => setAmount(Number(e.target.value) || 0)}
+                  value={amount === '' ? '' : amount}
+                  onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
                 />
                 <span className="absolute inset-y-0 right-4 flex items-center text-zinc-500 dark:text-zinc-400">
                   ml

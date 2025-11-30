@@ -12,7 +12,7 @@ export default function EditRecord() {
   const { babies, records, setCurrentBaby, updateRecord, deleteRecord } = useFeedingStore();
   
   const [feedingType, setFeedingType] = useState<FeedingType>('formula');
-  const [amount, setAmount] = useState<number>(150);
+  const [amount, setAmount] = useState<number | ''>(150);
   const [duration, setDuration] = useState<number>(0);
   const [feedingTime, setFeedingTime] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [babyId, setBabyId] = useState<string>('');
@@ -22,7 +22,7 @@ export default function EditRecord() {
     const record = records.find(r => r.id === id);
     if (record) {
       setFeedingType(record.feedingType);
-      setAmount(record.amount || 0);
+      setAmount(record.amount || '');
       setDuration(record.duration || 0);
       setFeedingTime(format(new Date(record.feedingTime), "yyyy-MM-dd'T'HH:mm"));
       setBabyId(record.babyId);
@@ -57,15 +57,15 @@ export default function EditRecord() {
       if (duration > 0) {
         record.duration = duration;
       }
-      if (amount > 0) {
+      if (amount && amount > 0) {
         record.amount = amount;
         record.unit = 'ml';
       }
     } else if (feedingType === 'formula') {
-      record.amount = amount;
+      record.amount = amount || 0;
       record.unit = 'ml';
     } else if (feedingType === 'solid') {
-      record.amount = amount;
+      record.amount = amount || 0;
       record.unit = '斤';
     }
 
@@ -217,7 +217,7 @@ export default function EditRecord() {
           )}
 
           {/* Amount */}
-          {(feedingType === 'formula' || feedingType === 'solid' || (feedingType === 'breast' && amount > 0)) && (
+          {(feedingType === 'formula' || feedingType === 'solid' || (feedingType === 'breast' && typeof amount === 'number' && amount > 0)) && (
             <div>
               <label className="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">
                 喂养量 ({getUnitForType()})
@@ -226,7 +226,7 @@ export default function EditRecord() {
                 <input
                   type="number"
                   value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
+                  onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
                   className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 text-center text-2xl font-bold text-zinc-900 dark:text-white"
                 />
                 <div className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-zinc-500 dark:text-zinc-400">
