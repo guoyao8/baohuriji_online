@@ -25,7 +25,9 @@ export default function Login() {
       }
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || '操作失败，请重试');
+      console.error('Login/Register error:', err);
+      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || '操作失败，请重试';
+      setError(errorMsg);
     }
   };
 

@@ -245,7 +245,7 @@ export const login = async (req, res) => {
       const token = generateToken(user.id);
 
       console.log('登录成功 (Supabase)');
-      return res.json({
+      const responseData = {
         token,
         user: {
           id: user.id,
@@ -253,7 +253,9 @@ export const login = async (req, res) => {
           avatarUrl: user.avatarUrl,
           createdAt: user.createdAt,
         },
-      });
+      };
+      console.log('返回数据:', JSON.stringify(responseData).length, 'bytes');
+      return res.json(responseData);
     }
 
     // 使用 Prisma（降级方案）
@@ -290,7 +292,8 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: '登录失败' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: '登录失败', details: error.message });
   }
 };
 
