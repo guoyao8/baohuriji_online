@@ -18,6 +18,8 @@ export default function Home() {
     lastFeedingTime: '',
     nextReminderTime: '',
   });
+  // 缓存提醒设置，避免频繁请求导致闪烁
+  const [reminderSettingsCache, setReminderSettingsCache] = useState<Record<string, any>>({});
 
   useEffect(() => {
     fetchBabies();
@@ -67,24 +69,61 @@ export default function Home() {
 
   const loadReminderSettings = async () => {
     try {
+      const cacheKey = currentBabyId || 'unified';
+      
+      // 先从缓存中获取设置，立即显示，避免闪烁
+      if (reminderSettingsCache[cacheKey]) {
+        const settings = reminderSettingsCache[cacheKey];
+        calculateReminderTime(settings);
+      }
+      
+      // 后台异步加载最新设置
       const { reminderService } = await import('@/services/reminder');
       const settings = await reminderService.getSettings(currentBabyId || undefined);
       
-      if (settings.enabled && records.length > 0) {
-        const lastRecord = records[0];
-        let nextTime = new Date(lastRecord.feedingTime);
-        nextTime = addHours(nextTime, settings.intervalHours);
-        nextTime = addMinutes(nextTime, settings.intervalMinutes);
-        
-        const nextReminderTime = formatDistanceToNow(nextTime, { locale: zhCN, addSuffix: true });
-        
-        setTodayStats(prev => ({
-          ...prev,
-          nextReminderTime,
-        }));
-      }
+      // 更新缓存
+      setReminderSettingsCache(prev => ({
+        ...prev,
+        [cacheKey]: settings,
+      }));
+      
+      // 计算提醒时间
+      calculateReminderTime(settings);
     } catch (error) {
       console.error('Failed to load reminder settings:', error);
+    }
+  };
+
+  const calculateReminderTime = (settings: any) => {
+    if (settings.enabled && records.length > 0) {
+      const lastRecord = records[0];
+      let nextTime = new Date(lastRecord.feedingTime);
+      nextTime = addHours(nextTime, settings.intervalHours);
+      nextTime = addMinutes(nextTime, settings.intervalMinutes);
+      
+      const now = new Date();
+      const isOverdue = nextTime < now;
+      
+      let nextReminderTime = '';
+      if (isOverdue) {
+        // 已经超时，计算超时了多久
+        const overdueHours = Math.floor((now.getTime() - nextTime.getTime()) / (1000 * 60 * 60));
+        const overdueMinutes = Math.floor(((now.getTime() - nextTime.getTime()) % (1000 * 60 * 60)) / (1000 * 60));
+        
+        if (overdueHours > 0) {
+          nextReminderTime = `已经超时 ${overdueHours} 小时${overdueMinutes > 0 ? ` ${overdueMinutes} 分钟` : ''} 未喂养`;
+        } else {
+          nextReminderTime = `已经超时 ${overdueMinutes} 分钟未喂养`;
+        }
+      } else {
+        // 未超时，显示下次提醒时间
+        nextReminderTime = formatDistanceToNow(nextTime, { locale: zhCN, addSuffix: true });
+      }
+      
+      setTodayStats(prev => ({
+        ...prev,
+        nextReminderTime,
+      }));
     }
   };
 
@@ -226,11 +265,29 @@ export default function Home() {
               </div>
             </div>
             {todayStats.nextReminderTime && (
-              <div className="flex items-center gap-2 mt-2 px-3 py-2 rounded-lg bg-primary/5 dark:bg-primary/10 border border-primary/20">
-                <span className="material-symbols-outlined text-primary text-lg">notifications_active</span>
+              <div className={`flex items-center gap-2 mt-2 px-3 py-2 rounded-lg border ${
+                todayStats.nextReminderTime.includes('已经超时')
+                  ? 'bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800'
+                  : 'bg-primary/5 dark:bg-primary/10 border-primary/20'
+              }`}>
+                <span className={`material-symbols-outlined text-lg ${
+                  todayStats.nextReminderTime.includes('已经超时')
+                    ? 'text-red-500 dark:text-red-400'
+                    : 'text-primary'
+                }`}>
+                  {todayStats.nextReminderTime.includes('已经超时') ? 'warning' : 'notifications_active'}
+                </span>
                 <div className="flex-1">
-                  <p className="text-xs text-zinc-600 dark:text-zinc-400">下次喂养提醒</p>
-                  <p className="text-sm font-semibold text-primary">{todayStats.nextReminderTime}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                    {todayStats.nextReminderTime.includes('已经超时') ? '喂养提醒' : '下次喂养提醒'}
+                  </p>
+                  <p className={`text-sm font-semibold ${
+                    todayStats.nextReminderTime.includes('已经超时')
+                      ? 'text-red-600 dark:text-red-400'
+                      : 'text-primary'
+                  }`}>
+                    {todayStats.nextReminderTime}
+                  </p>
                 </div>
               </div>
             )}

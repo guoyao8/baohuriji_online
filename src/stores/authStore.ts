@@ -10,6 +10,7 @@ interface AuthState {
   register: (username: string, password: string, inviteCode?: string) => Promise<void>;
   logout: () => Promise<void>;
   fetchUser: () => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
   setUser: (user: User | null) => void;
 }
 
@@ -63,6 +64,17 @@ export const useAuthStore = create<AuthState>((set) => ({
     } catch (error) {
       set({ user: null, isAuthenticated: false, isLoading: false });
       localStorage.removeItem('token');
+    }
+  },
+
+  updateProfile: async (data: Partial<User>) => {
+    set({ isLoading: true });
+    try {
+      const updatedUser = await authService.updateProfile(data);
+      set({ user: updatedUser, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
     }
   },
 

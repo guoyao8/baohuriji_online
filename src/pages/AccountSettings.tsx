@@ -5,14 +5,27 @@ import AvatarUpload from '@/components/AvatarUpload';
 
 export default function AccountSettings() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, updateProfile } = useAuthStore();
   const [username, setUsername] = useState(user?.username || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSave = () => {
-    // TODO: 实现更新用户信息的API调用
-    alert('保存成功');
-    navigate(-1);
+  const handleSave = async () => {
+    if (!username.trim()) {
+      alert('请输入用户名');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await updateProfile({ avatarUrl });
+      alert('保存成功');
+      navigate(-1);
+    } catch (error: any) {
+      alert(error.response?.data?.error || '保存失败，请重试');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -88,9 +101,10 @@ export default function AccountSettings() {
       <div className="mt-auto px-4 pt-8 pb-8">
         <button
           onClick={handleSave}
-          className="w-full rounded-full bg-primary py-3.5 text-lg font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
+          disabled={isSubmitting}
+          className="w-full rounded-full bg-primary py-3.5 text-lg font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          保存
+          {isSubmitting ? '保存中...' : '保存'}
         </button>
       </div>
     </div>

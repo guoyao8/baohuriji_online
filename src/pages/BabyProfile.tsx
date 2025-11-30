@@ -385,6 +385,8 @@ export function FamilySettings() {
   const navigate = useNavigate();
   const [members, setMembers] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
 
   useEffect(() => {
     loadMembers();
@@ -405,11 +407,23 @@ export function FamilySettings() {
       setIsLoading(true);
       const { familyService } = await import('@/services/family');
       const result = await familyService.inviteMember();
-      alert(`邀请码：${result.inviteCode}\n\n请将此邀请码分享给家人，邀请码有效期7天。`);
+      
+      setInviteCode(result.inviteCode);
+      setShowInviteModal(true);
     } catch (error: any) {
       alert(error.response?.data?.error || '生成邀请码失败');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCopyInviteCode = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      alert('✅ 邀请码已复制到剪贴板');
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      alert('复制失败，请手动复制邀请码');
     }
   };
 
@@ -480,6 +494,50 @@ export function FamilySettings() {
           邀请家人共同记录宝宝的成长点滴
         </p>
       </div>
+
+      {/* 邀请码弹窗 */}
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowInviteModal(false)}>
+          <div className="bg-white dark:bg-zinc-800 rounded-2xl p-6 max-w-sm w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-zinc-900 dark:text-white">邀请新成员</h3>
+              <button
+                onClick={() => setShowInviteModal(false)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-4">
+              请将下面的邀请码分享给家人，邀请码有效期7天。
+            </p>
+            
+            <div className="bg-zinc-100 dark:bg-zinc-900 rounded-xl p-4 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">邀请码</p>
+                  <p className="text-2xl font-bold text-primary tracking-wider">{inviteCode}</p>
+                </div>
+                <button
+                  onClick={handleCopyInviteCode}
+                  className="ml-4 flex items-center gap-1 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-lg">content_copy</span>
+                  <span className="text-sm font-medium">复制</span>
+                </button>
+              </div>
+            </div>
+            
+            <button
+              onClick={() => setShowInviteModal(false)}
+              className="w-full bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white py-3 rounded-xl font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors"
+            >
+              关闭
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -46,7 +46,7 @@ export const createRecord = async (req, res) => {
           amount: amount ? parseFloat(amount) : null,
           unit,
           duration: duration ? parseInt(duration) : null,
-          feedingTime: new Date(feedingTime).toISOString(),
+          feedingTime, // 直接使用前端发送的ISO字符串，不再转换
           note,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
@@ -273,7 +273,7 @@ export const updateRecord = async (req, res) => {
       if (amount !== undefined) updateData.amount = amount ? parseFloat(amount) : null;
       if (unit) updateData.unit = unit;
       if (duration !== undefined) updateData.duration = duration ? parseInt(duration) : null;
-      if (feedingTime) updateData.feedingTime = new Date(feedingTime).toISOString();
+      if (feedingTime) updateData.feedingTime = feedingTime; // 直接使用前端发送的ISO字符串
       if (note !== undefined) updateData.note = note;
 
       const { data: updatedRecord, error } = await supabase
