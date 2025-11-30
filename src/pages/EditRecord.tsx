@@ -9,7 +9,7 @@ export default function EditRecord() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { user } = useAuthStore();
-  const { babies, currentBabyId, records, setCurrentBaby, updateRecord, deleteRecord } = useFeedingStore();
+  const { babies, records, setCurrentBaby, updateRecord, deleteRecord } = useFeedingStore();
   
   const [feedingType, setFeedingType] = useState<FeedingType>('formula');
   const [amount, setAmount] = useState<number>(150);

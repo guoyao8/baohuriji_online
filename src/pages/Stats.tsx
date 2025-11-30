@@ -140,7 +140,7 @@ export default function Stats() {
         )}
 
         <div className="flex flex-wrap gap-4 px-4">
-          {stats.map((stat, index) => (
+          {stats.map((stat) => (
             <div
               key={stat.babyId}
               className="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50"

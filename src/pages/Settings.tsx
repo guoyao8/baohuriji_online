@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { logout } = useAuthStore();
 
   const handleLogout = async () => {
     if (confirm('确定要退出登录吗?')) {

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFeedingStore } from '@/stores/feedingStore';
-import { Baby } from '@/types';
 import { format } from 'date-fns';
 import AvatarUpload from '@/components/AvatarUpload';
 
