@@ -3,20 +3,17 @@ main = "src/index.ts"
 compatibility_date = "2024-11-30"
 node_compat = true
 
-[vars]
-ENVIRONMENT = "production"
-
-# SQLPub 数据库绑定 (可选，暂时注释)
-# [[d1_databases]]
-# binding = "DB"
-# database_name = "baohuriji"
-# database_id = "YOUR_D1_DATABASE_ID"
-
 # CORS 允许的源
 [env.production.vars]
+ENVIRONMENT = "production"
 ALLOWED_ORIGINS = "https://guoyao8.github.io"
 JWT_SECRET = "baohuriji-secret-key-2024"
 DATABASE_URL = "mysql://guoyao:91TohnXnJuertVZx@mysql2.sqlpub.com:3307/baobeiriji"
+
+# 使用 workers.dev 子域名
+[env.production]
+name = "baohuriji-api-production"
+workers_dev = true
 
 [env.development]
 vars = { ENVIRONMENT = "development", ALLOWED_ORIGINS = "http://localhost:5173", JWT_SECRET = "dev-secret-key", DATABASE_URL = "mysql://guoyao:91TohnXnJuertVZx@mysql2.sqlpub.com:3307/baobeiriji" }
