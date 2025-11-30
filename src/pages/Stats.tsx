@@ -6,16 +6,52 @@ import { DailyStats, TrendData } from '@/types';
 import { format, addDays, subDays } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
+const STATS_CACHE_KEY = 'stats_cache';
+const TREND_CACHE_KEY = 'trend_cache';
+const CACHE_DURATION = 5 * 60 * 1000;
+
+const loadFromStorage = (key: string) => {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : {};
+  } catch { return {}; }
+};
+
+const saveToStorage = (key: string, value: any) => {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+};
+
 export default function Stats() {
   const navigate = useNavigate();
   const { babies } = useFeedingStore();
   const [viewMode, setViewMode] = useState<'day' | 'week'>('day');
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [stats, setStats] = useState<DailyStats[]>([]);
-  const [trendData, setTrendData] = useState<TrendData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [statsCache, setStatsCache] = useState<Record<string, { data: DailyStats[]; timestamp: number }>>({});
-  const [trendCache, setTrendCache] = useState<Record<string, { data: TrendData[]; timestamp: number }>>({});
+  
+  const [statsCache, setStatsCache] = useState<Record<string, { data: DailyStats[]; timestamp: number }>>(
+    () => loadFromStorage(STATS_CACHE_KEY)
+  );
+  const [trendCache, setTrendCache] = useState<Record<string, { data: TrendData[]; timestamp: number }>>(
+    () => loadFromStorage(TREND_CACHE_KEY)
+  );
+  
+  const [stats, setStats] = useState<DailyStats[]>(() => {
+    const key = format(new Date(), 'yyyy-MM-dd');
+    const cache = loadFromStorage(STATS_CACHE_KEY)[key];
+    if (cache && Date.now() - cache.timestamp < CACHE_DURATION) return cache.data;
+    return [];
+  });
+  
+  const [trendData, setTrendData] = useState<TrendData[]>(() => {
+    const allCache = loadFromStorage(TREND_CACHE_KEY);
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const cacheKey = Object.keys(allCache).find(k => k.includes(today));
+    if (cacheKey) {
+      const cache = allCache[cacheKey];
+      if (cache && Date.now() - cache.timestamp < CACHE_DURATION) return cache.data;
+    }
+    return [];
+  });
 
   useEffect(() => {
     loadStats();
@@ -24,65 +60,42 @@ export default function Stats() {
   const loadStats = useCallback(async () => {
     try {
       const dateStr = format(currentDate, 'yyyy-MM-dd');
-      const CACHE_DURATION = 5 * 60 * 1000; // 延长到5分钟缓存
       const now = Date.now();
       
-      // 统计数据缓存键
       const statsCacheKey = dateStr;
       const statsFromCache = statsCache[statsCacheKey];
       const isStatsCacheValid = statsFromCache && now - statsFromCache.timestamp < CACHE_DURATION;
       
-      // 立即显示缓存数据（如果存在）
-      if (statsFromCache) {
-        setStats(statsFromCache.data);
-      }
+      if (statsFromCache) setStats(statsFromCache.data);
       
-      // 如果缓存有效，不发起请求
-      if (isStatsCacheValid) {
-        console.log('使用统计数据缓存');
-      } else {
-        // 只在缓存失效或不存在时才显示 loading
-        if (!statsFromCache) {
-          setIsLoading(true);
-        }
-        
+      if (!isStatsCacheValid) {
+        if (!statsFromCache) setIsLoading(true);
         const data = await feedingService.getDailyStats(dateStr);
         setStats(data);
-        setStatsCache(prev => ({
-          ...prev,
-          [statsCacheKey]: { data, timestamp: now }
-        }));
+        const newCache = { ...statsCache, [statsCacheKey]: { data, timestamp: now } };
+        setStatsCache(newCache);
+        saveToStorage(STATS_CACHE_KEY, newCache);
       }
 
       const babyIds = babies.map((b) => b.id);
-      
-      // 根据视图模式获取不同时间范围的趋势数据
       let trendStartDate;
       let groupBy: 'hour' | 'day';
       
       if (viewMode === 'day') {
-        // 日视图：获取当天的数据，按小时统计
         trendStartDate = format(currentDate, 'yyyy-MM-dd');
         groupBy = 'hour';
       } else {
-        // 周视图：获取过去7天的数据，按天统计
         trendStartDate = format(subDays(currentDate, 6), 'yyyy-MM-dd');
         groupBy = 'day';
       }
       
-      // 趋势数据缓存键
       const trendCacheKey = `${trendStartDate}_${dateStr}_${groupBy}_${babyIds.join(',')}`;
       const trendFromCache = trendCache[trendCacheKey];
       const isTrendCacheValid = trendFromCache && now - trendFromCache.timestamp < CACHE_DURATION;
       
-      // 立即显示缓存数据（如果存在）
-      if (trendFromCache) {
-        setTrendData(trendFromCache.data);
-      }
+      if (trendFromCache) setTrendData(trendFromCache.data);
       
-      // 如果缓存有效，不发起请求
       if (isTrendCacheValid) {
-        console.log('使用趋势数据缓存');
         setIsLoading(false);
       } else {
         const trend = await feedingService.getTrend({
@@ -92,17 +105,16 @@ export default function Stats() {
           groupBy,
         });
         setTrendData(trend);
-        setTrendCache(prev => ({
-          ...prev,
-          [trendCacheKey]: { data: trend, timestamp: now }
-        }));
+        const newCache = { ...trendCache, [trendCacheKey]: { data: trend, timestamp: now } };
+        setTrendCache(newCache);
+        saveToStorage(TREND_CACHE_KEY, newCache);
         setIsLoading(false);
       }
     } catch (error) {
       console.error('Failed to load stats:', error);
       setIsLoading(false);
     }
-  }, [currentDate, viewMode, babies, statsCache, trendCache]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentDate, viewMode, babies, statsCache, trendCache]);
 
   const goToPrevious = useCallback(() => {
     setCurrentDate((prev) => subDays(prev, viewMode === 'day' ? 1 : 7));

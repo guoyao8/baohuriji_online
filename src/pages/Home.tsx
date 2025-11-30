@@ -9,7 +9,7 @@ import { zhCN } from 'date-fns/locale';
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { babies, currentBabyId, records, setCurrentBaby, fetchBabies, fetchRecords } = useFeedingStore();
+  const { babies, currentBabyId, records, setCurrentBaby, fetchBabies } = useFeedingStore();
   const [todayStats, setTodayStats] = useState({
     formula: 0,
     breast: 0,
