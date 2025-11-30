@@ -11,9 +11,6 @@ jobs:
     permissions:
       contents: read
       deployments: write
-    environment:
-      name: production
-      url: https://baobeiriji.pages.dev
 
     steps:
       - name: Checkout code
