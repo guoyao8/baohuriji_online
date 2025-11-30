@@ -176,17 +176,27 @@ export const getTrend = async (req, res) => {
   try {
     const { startDate, endDate, babyIds, groupBy = 'hour' } = req.query;
 
+    console.log('getTrend called:', { startDate, endDate, babyIds, groupBy, userId: req.user?.id });
+
     if (!startDate || !endDate) {
       return res.status(400).json({ error: '缺少日期参数' });
     }
 
     // 使用 Supabase
     if (supabase) {
+      console.log('Using Supabase for getTrend');
       // 获取用户的家庭
-      const { data: familyMembers } = await supabase
+      const { data: familyMembers, error: familyError } = await supabase
         .from('FamilyMember')
         .select('familyId')
         .eq('userId', req.user.id);
+
+      if (familyError) {
+        console.error('Error fetching family members:', familyError);
+        throw familyError;
+      }
+
+      console.log('Family members:', familyMembers);
 
       if (!familyMembers || familyMembers.length === 0) {
         return res.json([]);
@@ -207,7 +217,14 @@ export const getTrend = async (req, res) => {
         babyQuery = babyQuery.in('id', ids);
       }
 
-      const { data: babies } = await babyQuery;
+      const { data: babies, error: babyError } = await babyQuery;
+
+      if (babyError) {
+        console.error('Error fetching babies:', babyError);
+        throw babyError;
+      }
+
+      console.log('Babies:', babies);
 
       if (!babies || babies.length === 0) {
         return res.json([]);
@@ -228,20 +245,34 @@ export const getTrend = async (req, res) => {
         recordQuery = recordQuery.in('babyId', ids);
       }
 
-      const { data: records } = await recordQuery;
+      const { data: records, error: recordError } = await recordQuery;
+
+      if (recordError) {
+        console.error('Error fetching records:', recordError);
+        throw recordError;
+      }
+
+      console.log('Records count:', records?.length);
 
       // 一次性获取所有宝宝近3天的母乳记录（有量的）
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
       
       const babyIdList = babies.map(b => b.id);
-      const { data: recentBreastRecords } = await supabase
+      const { data: recentBreastRecords, error: breastError } = await supabase
         .from('FeedingRecord')
         .select('babyId, amount')
         .in('babyId', babyIdList)
         .eq('feedingType', 'breast')
         .not('amount', 'is', null)
         .gte('feedingTime', threeDaysAgo.toISOString());
+
+      if (breastError) {
+        console.error('Error fetching breast records:', breastError);
+        throw breastError;
+      }
+
+      console.log('Breast records count:', recentBreastRecords?.length);
 
       // 按宝宝计算平均值
       const breastAverages = {};
@@ -254,6 +285,8 @@ export const getTrend = async (req, res) => {
           breastAverages[babyId] = Math.round(total / babyRecords.length);
         }
       });
+
+      console.log('Breast averages:', breastAverages);
 
       if (groupBy === 'day') {
         // 按天统计
