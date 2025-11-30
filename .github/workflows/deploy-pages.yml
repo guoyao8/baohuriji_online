@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build-and-deploy:
@@ -14,6 +11,9 @@ jobs:
     permissions:
       contents: read
       deployments: write
+    environment:
+      name: production
+      url: https://baobeiriji.pages.dev
 
     steps:
       - name: Checkout code
@@ -37,4 +37,4 @@ jobs:
           accountId: 99b7470bbfe8a95601f669173c513aa3
           projectName: baohuriji
           directory: dist
-          productionBranch: main
+          branch: main
