@@ -1,0 +1,1 @@
+import{c as t}from"./index-B2L3e1xg.js";import"./react-vendor-CA3giask.js";import"./store-DH4KNu1b.js";import"./http-B9ygI19o.js";import"./date-utils-BxdteZ_p.js";const o={getSettings:async r=>await t.get("/reminder",{params:{babyId:r}}),saveSettings:async r=>await t.post("/reminder",r)};export{o as reminderService};

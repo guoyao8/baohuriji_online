@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.local
+server/.env
+*.log
+.DS_Store
+产品原型
+DEPLOYMENT.md
+QUICKSTART.md
+check-deployment.sh
+deploy.sh
+docker-compose.yml
+Dockerfile

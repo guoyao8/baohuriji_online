@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>宝贝日记</title>
+    
+    <!-- 预连接 Google Fonts 域名 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- 预连接 API 服务器 -->
+    <link rel="dns-prefetch" href="https://baohuriji-online.onrender.com" />
+    
+    <!-- 异步加载字体，不阻塞渲染 -->
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap" 
+      rel="stylesheet" 
+      media="print" 
+      onload="this.media='all'" 
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap" rel="stylesheet" />
+    </noscript>
+    
+    <!-- Material Icons 异步加载 -->
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" 
+      rel="stylesheet"
+      media="print" 
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    </noscript>
+    
+    <!-- 预加载关键资源 -->
+    <link rel="modulepreload" href="data:application/octet-stream;base64,aW1wb3J0IFJlYWN0IGZyb20gJ3JlYWN0JzsKaW1wb3J0IFJlYWN0RE9NIGZyb20gJ3JlYWN0LWRvbS9jbGllbnQnOwppbXBvcnQgQXBwIGZyb20gJy4vQXBwJzsKaW1wb3J0ICcuL2luZGV4LmNzcyc7CgovLyDpmpDol48gbG9hZGluZyDliqjnlLsKY29uc3QgaGlkZUxvYWRpbmcgPSAoKSA9PiB7CiAgY29uc3QgbG9hZGluZyA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdsb2FkaW5nJyk7CiAgaWYgKGxvYWRpbmcpIHsKICAgIGxvYWRpbmcuc3R5bGUub3BhY2l0eSA9ICcwJzsKICAgIGxvYWRpbmcuc3R5bGUudHJhbnNpdGlvbiA9ICdvcGFjaXR5IDAuM3MnOwogICAgc2V0VGltZW91dCgoKSA9PiB7CiAgICAgIGxvYWRpbmcuc3R5bGUuZGlzcGxheSA9ICdub25lJzsKICAgIH0sIDMwMCk7CiAgfQp9OwoKUmVhY3RET00uY3JlYXRlUm9vdChkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgncm9vdCcpISkucmVuZGVyKAogIDxSZWFjdC5TdHJpY3RNb2RlPgogICAgPEFwcCAvPgogIDwvUmVhY3QuU3RyaWN0TW9kZT4KKTsKCi8vIFJlYWN0IOa4suafk+WQjumakOiXjyBsb2FkaW5nCnNldFRpbWVvdXQoaGlkZUxvYWRpbmcsIDEwMCk7Cg==" />
+    
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      /* 加载动画 */
+      #loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f6f7f8;
+      }
+      @media (prefers-color-scheme: dark) {
+        #loading {
+          background: #101922;
+        }
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid rgba(43, 140, 238, 0.2);
+        border-top-color: #2b8cee;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+    <script type="module" crossorigin src="/baohuriji_online/assets/index-B2L3e1xg.js"></script>
+    <link rel="modulepreload" crossorigin href="/baohuriji_online/assets/react-vendor-CA3giask.js">
+    <link rel="modulepreload" crossorigin href="/baohuriji_online/assets/store-DH4KNu1b.js">
+    <link rel="modulepreload" crossorigin href="/baohuriji_online/assets/http-B9ygI19o.js">
+    <link rel="modulepreload" crossorigin href="/baohuriji_online/assets/date-utils-BxdteZ_p.js">
+    <link rel="stylesheet" crossorigin href="/baohuriji_online/assets/index-CG5xfxhA.css">
+  </head>
+  <body class="bg-background-light dark:bg-background-dark font-display">
+    <!-- 加载指示器 -->
+    <div id="loading">
+      <div class="spinner"></div>
+    </div>
+    <div id="root"></div>
+    <script>
+      // 当应用加载后隐藏 loading
+      window.addEventListener('load', function() {
+        var loading = document.getElementById('loading');
+        if (loading) {
+          loading.style.display = 'none';
+        }
+      });
+    </script>
+  </body>
+</html>
