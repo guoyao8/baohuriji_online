@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFeedingStore } from '@/stores/feedingStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 export default function AddRecord() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { babies, currentBabyId, setCurrentBaby, addRecord } = useFeedingStore();
+  const { babies, currentBabyId, records, setCurrentBaby, addRecord } = useFeedingStore();
   
   const [feedingType, setFeedingType] = useState<FeedingType>('formula');
   const [amount, setAmount] = useState<number | ''>(150);
@@ -16,6 +16,36 @@ export default function AddRecord() {
   const [feedingTime, setFeedingTime] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm"));
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerInterval, setTimerInterval] = useState<number | null>(null);
+
+  // 使用 useMemo 计算当前宝宝的最近一次喂养记录（性能优化）
+  const lastRecord = useMemo(() => {
+    if (!currentBabyId || !records.length) return null;
+    // records 已经按时间倒序排列，直接取第一条当前宝宝的记录
+    return records.find(r => r.babyId === currentBabyId) || null;
+  }, [currentBabyId, records]);
+
+  // 初始化默认喂养量：根据最近一次记录设置
+  useEffect(() => {
+    if (lastRecord) {
+      // 设置喂养类型
+      setFeedingType(lastRecord.feedingType);
+      
+      // 根据类型设置喂养量
+      if (lastRecord.feedingType === 'breast') {
+        setAmount(lastRecord.amount || '');
+        setDuration(lastRecord.duration || 0);
+      } else if (lastRecord.feedingType === 'formula') {
+        setAmount(lastRecord.amount || 150);
+      } else if (lastRecord.feedingType === 'solid') {
+        setAmount(lastRecord.amount || 0);
+      }
+    } else {
+      // 没有历史记录，使用默认值
+      setFeedingType('formula');
+      setAmount(150);
+      setDuration(0);
+    }
+  }, [lastRecord, currentBabyId]); // 当切换宝宝或记录变化时重新设置
 
   useEffect(() => {
     return () => {
@@ -144,7 +174,15 @@ export default function AddRecord() {
                 onClick={(e) => {
                   e.preventDefault();
                   setFeedingType('breast');
-                  setAmount('');
+                  // 切换类型时，尝试使用该类型的最近一次喂养量
+                  const lastBreastRecord = records.find(r => r.babyId === currentBabyId && r.feedingType === 'breast');
+                  if (lastBreastRecord) {
+                    setAmount(lastBreastRecord.amount || '');
+                    setDuration(lastBreastRecord.duration || 0);
+                  } else {
+                    setAmount('');
+                    setDuration(0);
+                  }
                 }}
                 className={`flex flex-col items-center justify-center gap-2 rounded-xl border py-3 ${
                   feedingType === 'breast'
@@ -162,7 +200,9 @@ export default function AddRecord() {
                 onClick={(e) => {
                   e.preventDefault();
                   setFeedingType('formula');
-                  setAmount(150);
+                  // 切换类型时，尝试使用该类型的最近一次喂养量
+                  const lastFormulaRecord = records.find(r => r.babyId === currentBabyId && r.feedingType === 'formula');
+                  setAmount(lastFormulaRecord?.amount || 150);
                 }}
                 className={`flex flex-col items-center justify-center gap-2 rounded-xl border py-3 ${
                   feedingType === 'formula'
@@ -180,7 +220,9 @@ export default function AddRecord() {
                 onClick={(e) => {
                   e.preventDefault();
                   setFeedingType('solid');
-                  setAmount(0);
+                  // 切换类型时，尝试使用该类型的最近一次喂养量
+                  const lastSolidRecord = records.find(r => r.babyId === currentBabyId && r.feedingType === 'solid');
+                  setAmount(lastSolidRecord?.amount || 0);
                 }}
                 className={`flex flex-col items-center justify-center gap-2 rounded-xl border py-3 ${
                   feedingType === 'solid'
