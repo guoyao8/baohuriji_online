@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { feedingService } from '@/services/feeding';
 import { useFeedingStore } from '@/stores/feedingStore';
@@ -13,6 +13,7 @@ export default function Stats() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [stats, setStats] = useState<DailyStats[]>([]);
   const [trendData, setTrendData] = useState<TrendData[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [statsCache, setStatsCache] = useState<Record<string, { data: DailyStats[]; timestamp: number }>>({});
   const [trendCache, setTrendCache] = useState<Record<string, { data: TrendData[]; timestamp: number }>>({});
 
@@ -23,18 +24,26 @@ export default function Stats() {
   const loadStats = async () => {
     try {
       const dateStr = format(currentDate, 'yyyy-MM-dd');
-      const CACHE_DURATION = 2 * 60 * 1000; // 2分钟缓存（统计数据更新频繁）
+      const CACHE_DURATION = 5 * 60 * 1000; // 延长到5分钟缓存
       const now = Date.now();
       
       // 统计数据缓存键
       const statsCacheKey = dateStr;
-      if (statsCache[statsCacheKey] && now - statsCache[statsCacheKey].timestamp < CACHE_DURATION) {
+      const statsFromCache = statsCache[statsCacheKey];
+      const isStatsCacheValid = statsFromCache && now - statsFromCache.timestamp < CACHE_DURATION;
+      
+      // 立即显示缓存数据（如果存在）
+      if (statsFromCache) {
+        setStats(statsFromCache.data);
+      }
+      
+      // 如果缓存有效，不发起请求
+      if (isStatsCacheValid) {
         console.log('使用统计数据缓存');
-        setStats(statsCache[statsCacheKey].data);
       } else {
-        // 先显示缓存，然后异步更新
-        if (statsCache[statsCacheKey]) {
-          setStats(statsCache[statsCacheKey].data);
+        // 只在缓存失效或不存在时才显示 loading
+        if (!statsFromCache) {
+          setIsLoading(true);
         }
         
         const data = await feedingService.getDailyStats(dateStr);
@@ -63,15 +72,19 @@ export default function Stats() {
       
       // 趋势数据缓存键
       const trendCacheKey = `${trendStartDate}_${dateStr}_${groupBy}_${babyIds.join(',')}`;
-      if (trendCache[trendCacheKey] && now - trendCache[trendCacheKey].timestamp < CACHE_DURATION) {
+      const trendFromCache = trendCache[trendCacheKey];
+      const isTrendCacheValid = trendFromCache && now - trendFromCache.timestamp < CACHE_DURATION;
+      
+      // 立即显示缓存数据（如果存在）
+      if (trendFromCache) {
+        setTrendData(trendFromCache.data);
+      }
+      
+      // 如果缓存有效，不发起请求
+      if (isTrendCacheValid) {
         console.log('使用趋势数据缓存');
-        setTrendData(trendCache[trendCacheKey].data);
+        setIsLoading(false);
       } else {
-        // 先显示缓存，然后异步更新
-        if (trendCache[trendCacheKey]) {
-          setTrendData(trendCache[trendCacheKey].data);
-        }
-        
         const trend = await feedingService.getTrend({
           startDate: trendStartDate,
           endDate: dateStr,
@@ -83,9 +96,11 @@ export default function Stats() {
           ...prev,
           [trendCacheKey]: { data: trend, timestamp: now }
         }));
+        setIsLoading(false);
       }
     } catch (error) {
       console.error('Failed to load stats:', error);
+      setIsLoading(false);
     }
   };
 
@@ -97,13 +112,14 @@ export default function Stats() {
     setCurrentDate((prev) => addDays(prev, viewMode === 'day' ? 1 : 7));
   };
 
-  const getMaxAmount = () => {
+  // 使用 useMemo 缓存最大值计算
+  const maxAmount = useMemo(() => {
     if (trendData.length === 0) return 300;
     const max = Math.max(
       ...trendData.flatMap((d) => d.babies.map((b) => b.amount || 0))
     );
     return Math.max(max, 100);
-  };
+  }, [trendData]);
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col">
@@ -210,9 +226,17 @@ export default function Stats() {
 
         <div className="px-4 py-2">
           <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-4">
-            <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-4">
-              喂养量趋势 {viewMode === 'day' ? '(今日24小时)' : '(过去7天)'}
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-bold text-zinc-900 dark:text-white">
+                喂养量趋势 {viewMode === 'day' ? '(今日24小时)' : '(过去7天)'}
+              </h3>
+              {isLoading && (
+                <div className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  <span className="animate-spin material-symbols-outlined" style={{ fontSize: '16px' }}>progress_activity</span>
+                  加载中...
+                </div>
+              )}
+            </div>
             <div className="flex h-48 w-full items-end justify-between gap-1 text-xs text-zinc-500 dark:text-zinc-400">
               {viewMode === 'day' ? (
                 // 日视图：显示24小时的数据，每2小时一个柱状图
@@ -239,7 +263,6 @@ export default function Stats() {
                   }
                   
                   mergedData.babies = Array.from(babyMap.values());
-                  const maxAmount = getMaxAmount();
 
                   return (
                     <div key={startHour} className="flex h-full flex-col items-center justify-end gap-1 flex-1">
@@ -276,11 +299,6 @@ export default function Stats() {
               ) : (
                 // 周视图：显示过去7天的数据，按天统计
                 trendData.map((data) => {
-                  const maxAmount = Math.max(
-                    ...trendData.flatMap((d) => d.babies.map((b) => b.amount || 0)),
-                    100
-                  );
-                  
                   return (
                     <div key={data.date} className="flex h-full w-full flex-col items-center justify-end gap-2">
                       <div className="flex w-full h-full items-end justify-center gap-1">

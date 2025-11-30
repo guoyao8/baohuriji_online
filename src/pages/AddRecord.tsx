@@ -59,7 +59,7 @@ export default function AddRecord() {
     const record = {
       babyId: currentBabyId,
       feedingType,
-      feedingTime: new Date(feedingTime).toISOString(),
+      feedingTime: feedingTime + ':00',  // datetime-local 格式补全秒，保持本地时间值
       recordedBy: user.id,
       recordedByName: user.username,
     };
@@ -115,14 +115,18 @@ export default function AddRecord() {
           <div className="flex h-10 flex-1 items-center justify-center rounded-lg bg-zinc-200 dark:bg-zinc-800 p-1">
             {babies.map((baby) => (
               <label key={baby.id} className="flex h-full flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-md px-2 text-sm font-medium leading-normal text-zinc-500 dark:text-zinc-400 has-[:checked]:bg-white has-[:checked]:text-zinc-900 has-[:checked]:shadow-sm dark:has-[:checked]:bg-zinc-900/50 dark:has-[:checked]:text-white">
-                <span className="truncate">{baby.name}</span>
                 <input
                   checked={currentBabyId === baby.id}
-                  onChange={() => setCurrentBaby(baby.id)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    setCurrentBaby(baby.id);
+                  }}
                   className="invisible w-0"
                   type="radio"
                   name="baby-selector"
+                  value={baby.id}
                 />
+                <span className="truncate">{baby.name}</span>
               </label>
             ))}
           </div>
@@ -136,7 +140,9 @@ export default function AddRecord() {
             </label>
             <div className="grid grid-cols-3 gap-3">
               <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
                   setFeedingType('breast');
                   setAmount('');
                 }}
@@ -152,7 +158,9 @@ export default function AddRecord() {
                 <span className="text-sm font-medium">母乳</span>
               </button>
               <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
                   setFeedingType('formula');
                   setAmount(150);
                 }}
@@ -168,7 +176,9 @@ export default function AddRecord() {
                 <span className="text-sm font-medium">配方奶</span>
               </button>
               <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
                   setFeedingType('solid');
                   setAmount(0);
                 }}

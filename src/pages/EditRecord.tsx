@@ -48,7 +48,7 @@ export default function EditRecord() {
     const record: any = {
       babyId,
       feedingType,
-      feedingTime: new Date(feedingTime).toISOString(),
+      feedingTime: feedingTime + ':00',  // datetime-local 格式补全秒，保持本地时间值
       recordedBy: user.id,
       recordedByName: user.username,
     };

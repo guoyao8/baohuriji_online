@@ -19,7 +19,7 @@ export default function Home() {
     nextReminderTime: '',
   });
   // 缓存提醒设置，避免频繁请求导致闪烁
-  const [reminderSettingsCache, setReminderSettingsCache] = useState<Record<string, any>>({});
+  const [reminderSettingsCache, setReminderSettingsCache] = useState<Record<string, { settings: any; timestamp: number }>>({});
 
   useEffect(() => {
     fetchBabies();
@@ -70,25 +70,38 @@ export default function Home() {
   const loadReminderSettings = async () => {
     try {
       const cacheKey = currentBabyId || 'unified';
+      const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
+      const now = Date.now();
+      
+      // 检查缓存是否有效
+      const cached = reminderSettingsCache[cacheKey];
+      const isCacheValid = cached && (now - cached.timestamp < CACHE_DURATION);
       
       // 先从缓存中获取设置，立即显示，避免闪烁
-      if (reminderSettingsCache[cacheKey]) {
-        const settings = reminderSettingsCache[cacheKey];
-        calculateReminderTime(settings);
+      if (cached) {
+        calculateReminderTime(cached.settings);
       }
       
-      // 后台异步加载最新设置
+      // 如果缓存有效，不发起请求
+      if (isCacheValid) {
+        console.log('使用提醒设置缓存');
+        return;
+      }
+      
+      // 缓存失效或不存在，异步加载最新设置
       const { reminderService } = await import('@/services/reminder');
       const settings = await reminderService.getSettings(currentBabyId || undefined);
       
       // 更新缓存
       setReminderSettingsCache(prev => ({
         ...prev,
-        [cacheKey]: settings,
+        [cacheKey]: { settings, timestamp: now },
       }));
       
-      // 计算提醒时间
-      calculateReminderTime(settings);
+      // 只在缓存失效时才重新计算（避免重复更新导致闪烁）
+      if (!isCacheValid) {
+        calculateReminderTime(settings);
+      }
     } catch (error) {
       console.error('Failed to load reminder settings:', error);
     }
@@ -168,6 +181,10 @@ export default function Home() {
 
   const formatAmount = (record: FeedingRecord) => {
     if (record.duration) {
+      // 不足1分钟显示秒数
+      if (record.duration < 60) {
+        return `${record.duration} 秒`;
+      }
       return `${Math.floor(record.duration / 60)} min`;
     }
     if (record.amount) {
