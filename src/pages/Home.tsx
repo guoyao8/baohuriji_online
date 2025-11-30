@@ -25,16 +25,17 @@ export default function Home() {
     fetchBabies();
   }, [fetchBabies]);
 
-  useEffect(() => {
-    if (currentBabyId) {
-      fetchRecords(currentBabyId);
-    }
-  }, [currentBabyId, fetchRecords]);
+  // 移除：不再需要这个 useEffect，setCurrentBaby 内部已经处理了 fetchRecords
+  // useEffect(() => {
+  //   if (currentBabyId) {
+  //     fetchRecords(currentBabyId);
+  //   }
+  // }, [currentBabyId, fetchRecords]);
 
   useEffect(() => {
     calculateTodayStats();
     loadReminderSettings();
-  }, [records]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [records, currentBabyId]); // 添加 currentBabyId 依赖，确保切换时立即重算
 
   const calculateTodayStats = useCallback(() => {
     const today = format(new Date(), 'yyyy-MM-dd');

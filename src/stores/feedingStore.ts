@@ -111,6 +111,11 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
   },
 
   setCurrentBaby: (babyId: string) => {
+    // 防止重复切换
+    if (get().currentBabyId === babyId) {
+      return;
+    }
+    
     set({ currentBabyId: babyId });
     localStorage.setItem('currentBabyId', babyId);
     
@@ -122,8 +127,8 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
       set({ records: [] }); // 没有缓存则清空
     }
     
-    // 后台异步刷新最新数据
-    get().fetchRecords(babyId, false);
+    // 后台异步刷新最新数据（使用缓存策略）
+    get().fetchRecords(babyId, true);
   },
 
   addBaby: async (baby: Partial<Baby>) => {
@@ -232,6 +237,14 @@ export const useFeedingStore = create<FeedingState>((set, get) => ({
     set({ isLoading: true });
     try {
       const records = await feedingService.getRecords({ babyId: targetBabyId, limit: 50 });
+      
+      // 检查当前宝宝是否还是目标宝宝（防止竞态条件）
+      const currentBabyId = get().currentBabyId;
+      if (currentBabyId !== targetBabyId) {
+        console.log('宝宝已切换，忽略该请求的结果');
+        set({ isLoading: false });
+        return;
+      }
       
       // 更新缓存
       set((state) => {
