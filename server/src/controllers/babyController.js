@@ -1,7 +1,45 @@
 import prisma from '../config/database.js';
+import supabase from '../config/supabase.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export const getBabies = async (req, res) => {
   try {
+    // 使用 Supabase
+    if (supabase) {
+      // 获取用户所属的家庭
+      const { data: familyMembers, error: memberError } = await supabase
+        .from('FamilyMember')
+        .select('familyId')
+        .eq('userId', req.user.id);
+
+      if (memberError) throw memberError;
+
+      if (!familyMembers || familyMembers.length === 0) {
+        return res.json([]);
+      }
+
+      const familyIds = familyMembers.map(m => m.familyId);
+
+      // 获取这些家庭的所有宝宝
+      const { data: babies, error: babyError } = await supabase
+        .from('Baby')
+        .select('*')
+        .in('familyId', familyIds);
+
+      if (babyError) throw babyError;
+
+      console.log(`用户 ${req.user.id} 的家庭数:`, familyIds.length);
+      console.log(`宝宝总数:`, babies?.length || 0);
+      babies?.forEach(baby => console.log(`- ${baby.name} (${baby.gender})`));
+
+      return res.json(babies || []);
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
+
     const families = await prisma.familyMember.findMany({
       where: { userId: req.user.id },
       include: {
