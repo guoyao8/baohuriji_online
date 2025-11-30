@@ -48,6 +48,7 @@ export default defineConfig({
     //   }
     // })
   ],
+  publicDir: 'public', // 确保 public 目录中的文件被复制
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
