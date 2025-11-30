@@ -26,7 +26,22 @@ export default function Login() {
       navigate('/');
     } catch (err: any) {
       console.error('Login/Register error:', err);
-      const errorMsg = err.response?.data?.error || err.response?.data?.message || err.message || '操作失败，请重试';
+      
+      // 更友好的错误提示
+      let errorMsg = '操作失败，请重试';
+      
+      if (err.code === 'ECONNABORTED' || err.message?.includes('超时')) {
+        errorMsg = '网络请求超时，请检查网络连接后重试';
+      } else if (err.message === 'Network Error' || err.message?.includes('网络')) {
+        errorMsg = '网络连接失败，请检查网络后重试';
+      } else if (err.response?.data?.error) {
+        errorMsg = err.response.data.error;
+      } else if (err.response?.data?.message) {
+        errorMsg = err.response.data.message;
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      
       setError(errorMsg);
     }
   };
