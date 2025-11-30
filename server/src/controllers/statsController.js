@@ -1,4 +1,5 @@
 import prisma from '../config/database.js';
+import supabase from '../config/supabase.js';
 
 export const getDailyStats = async (req, res) => {
   try {
@@ -12,6 +13,90 @@ export const getDailyStats = async (req, res) => {
     startDate.setHours(0, 0, 0, 0);
     const endDate = new Date(date);
     endDate.setHours(23, 59, 59, 999);
+
+    // 使用 Supabase
+    if (supabase) {
+      // 获取用户的家庭
+      const { data: familyMembers } = await supabase
+        .from('FamilyMember')
+        .select('familyId')
+        .eq('userId', req.user.id);
+
+      if (!familyMembers || familyMembers.length === 0) {
+        return res.json([]);
+      }
+
+      const familyIds = familyMembers.map(m => m.familyId);
+
+      // 获取记录
+      let query = supabase
+        .from('FeedingRecord')
+        .select('*')
+        .in('familyId', familyIds)
+        .gte('feedingTime', startDate.toISOString())
+        .lte('feedingTime', endDate.toISOString());
+
+      if (babyId) {
+        query = query.eq('babyId', babyId);
+      }
+
+      const { data: records } = await query;
+
+      // 获取宝宝信息
+      const babyIds = [...new Set(records?.map(r => r.babyId) || [])];
+      const { data: babies } = await supabase
+        .from('Baby')
+        .select('id, name')
+        .in('id', babyIds);
+
+      const babyMap = new Map(babies?.map(b => [b.id, b.name]) || []);
+
+      // 按宝宝分组统计
+      const babyStatsMap = new Map();
+
+      records?.forEach(record => {
+        const babyId = record.babyId;
+        if (!babyStatsMap.has(babyId)) {
+          babyStatsMap.set(babyId, {
+            babyId,
+            babyName: babyMap.get(babyId) || 'Unknown',
+            totalAmount: 0,
+            totalFeedings: 0,
+            lastFeedingTime: null,
+            feedingsByType: {
+              breast: 0,
+              formula: 0,
+              solid: 0,
+            },
+          });
+        }
+
+        const stats = babyStatsMap.get(babyId);
+        stats.totalFeedings += 1;
+
+        if (record.feedingType === 'formula' && record.amount) {
+          stats.totalAmount += record.amount;
+        } else if (record.feedingType === 'breast' && record.amount) {
+          stats.totalAmount += record.amount;
+        } else if (record.feedingType === 'breast' && !record.amount) {
+          stats.totalAmount += 120;
+        }
+
+        stats.feedingsByType[record.feedingType] += 1;
+
+        if (!stats.lastFeedingTime || new Date(record.feedingTime) > new Date(stats.lastFeedingTime)) {
+          stats.lastFeedingTime = record.feedingTime;
+        }
+      });
+
+      const result = Array.from(babyStatsMap.values());
+      return res.json(result);
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
 
     const where = {
       feedingTime: {
@@ -63,13 +148,11 @@ export const getDailyStats = async (req, res) => {
       const stats = babyStatsMap.get(babyId);
       stats.totalFeedings += 1;
 
-      // 计算总量（只统计奶粉和母乳）
       if (record.feedingType === 'formula' && record.amount) {
         stats.totalAmount += record.amount;
       } else if (record.feedingType === 'breast' && record.amount) {
         stats.totalAmount += record.amount;
       } else if (record.feedingType === 'breast' && !record.amount) {
-        // 母乳没有量的话，按平均值120ml计算
         stats.totalAmount += 120;
       }
 
