@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html class="" lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>数据统计页</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+      }
+    </style>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {primary: "#1A1A1A", "background-light": "#f7f7f7", "background-dark": "#191919"}, fontFamily: {display: "Lexend"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}}}};</script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<div class="pb-24">
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
+<div class="flex size-12 shrink-0 items-center justify-start">
+<span class="material-symbols-outlined text-zinc-900 dark:text-white">arrow_back_ios_new</span>
+</div>
+<h1 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">统计</h1>
+<div class="flex w-12 items-center justify-end">
+</div>
+</div>
+<div class="flex px-4 py-3">
+<div class="flex h-10 flex-1 items-center justify-center rounded-lg bg-zinc-200 dark:bg-zinc-800 p-1">
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-zinc-900 has-[:checked]:dark:text-white text-zinc-500 dark:text-zinc-400 text-sm font-medium leading-normal">
+<span class="truncate">日</span>
+<input checked="" class="invisible w-0" name="time-range" type="radio" value="日"/>
+</label>
+<label class="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-lg px-2 has-[:checked]:bg-background-light has-[:checked]:dark:bg-background-dark has-[:checked]:shadow-sm has-[:checked]:text-zinc-900 has-[:checked]:dark:text-white text-zinc-500 dark:text-zinc-400 text-sm font-medium leading-normal">
+<span class="truncate">周</span>
+<input class="invisible w-0" name="time-range" type="radio" value="周"/>
+</label>
+</div>
+</div>
+<div class="flex items-center justify-between px-4 py-2">
+<button class="p-2 text-zinc-500 dark:text-zinc-400">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<h4 class="text-zinc-500 dark:text-zinc-400 text-sm font-bold leading-normal tracking-[0.015em] text-center">今天, 5月24日</h4>
+<button class="p-2 text-zinc-500 dark:text-zinc-400">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+<div class="flex items-center justify-center gap-4 px-4 pt-2 pb-4">
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-blue-400"></div>
+<span class="text-sm font-medium text-zinc-900 dark:text-white">宝宝A</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-3 rounded-full bg-green-400"></div>
+<span class="text-sm font-medium text-zinc-900 dark:text-white">宝宝B</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-4 px-4">
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50">
+<p class="text-zinc-600 dark:text-zinc-400 text-base font-medium leading-normal">宝宝A 总量</p>
+<p class="text-zinc-900 dark:text-white tracking-light text-2xl font-bold leading-tight">850ml</p>
+</div>
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50">
+<p class="text-zinc-600 dark:text-zinc-400 text-base font-medium leading-normal">宝宝B 总量</p>
+<p class="text-zinc-900 dark:text-white tracking-light text-2xl font-bold leading-tight">820ml</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-4 p-4">
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50">
+<p class="text-zinc-600 dark:text-zinc-400 text-base font-medium leading-normal">宝宝A 频率</p>
+<p class="text-zinc-900 dark:text-white tracking-light text-2xl font-bold leading-tight">8次</p>
+</div>
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50">
+<p class="text-zinc-600 dark:text-zinc-400 text-base font-medium leading-normal">宝宝B 频率</p>
+<p class="text-zinc-900 dark:text-white tracking-light text-2xl font-bold leading-tight">9次</p>
+</div>
+</div>
+<div class="px-4 py-2">
+<div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-4">
+<h3 class="text-base font-bold text-zinc-900 dark:text-white mb-4">喂养量趋势</h3>
+<div class="flex h-48 w-full items-end justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+<div class="flex h-full w-full flex-col items-center justify-end gap-2">
+<div class="flex w-full h-full items-end justify-center gap-1">
+<div class="w-1/2 rounded-t-full bg-blue-400" style="height: 60%;"></div>
+<div class="w-1/2 rounded-t-full bg-green-400" style="height: 55%;"></div>
+</div>
+<span>00</span>
+</div>
+<div class="flex h-full w-full flex-col items-center justify-end gap-2">
+<div class="flex w-full h-full items-end justify-center gap-1">
+<div class="w-1/2 rounded-t-full bg-blue-400" style="height: 0%;"></div>
+<div class="w-1/2 rounded-t-full bg-green-400" style="height: 0%;"></div>
+</div>
+<span>03</span>
+</div>
+<div class="flex h-full w-full flex-col items-center justify-end gap-2">
+<div class="flex w-full h-full items-end justify-center gap-1">
+<div class="w-1/2 rounded-t-full bg-blue-400" style="height: 75%;"></div>
+<div class="w-1/2 rounded-t-full bg-green-400" style="height: 80%;"></div>
+</div>
+<span>06</span>
+</div>
+<div class="flex h-full w-full flex-col items-center justify-end gap-2">
+<div class="flex w-full h-full items-end justify-center gap-1">
+<div class="w-1/2 rounded-t-full bg-blue-400" style="height: 65%;"></div>
+<div class="w-1/2 rounded-t-full bg-green-400" style="height: 60%;"></div>
+</div>
+<span>09</span>
+</div>
+<div class="flex h-full w-full flex-col items-center justify-end gap-2">
+<div class="flex w-full h-full items-end justify-center gap-1">
+<div class="w-1/2 rounded-t-full bg-blue-400" style="height: 90%;"></div>
+<div class="w-1/2 rounded-t-full bg-green-400" style="height: 85%;"></div>
+</div>
+<span>12</span>
+</div>
+<div class="flex h-full w-full flex-col items-center justify-end gap-2">
+<div class="flex w-full h-full items-end justify-center gap-1">
+<div class="w-1/2 rounded-t-full bg-blue-400" style="height: 50%;"></div>
+<div class="w-1/2 rounded-t-full bg-green-400" style="height: 55%;"></div>
+</div>
+<span>15</span>
+</div>
+<div class="flex h-full w-full flex-col items-center justify-end gap-2">
+<div class="flex w-full h-full items-end justify-center gap-1">
+<div class="w-1/2 rounded-t-full bg-blue-400" style="height: 80%;"></div>
+<div class="w-1/2 rounded-t-full bg-green-400" style="height: 75%;"></div>
+</div>
+<span>18</span>
+</div>
+<div class="flex h-full w-full flex-col items-center justify-end gap-2">
+<div class="flex w-full h-full items-end justify-center gap-1">
+<div class="w-1/2 rounded-t-full bg-blue-400" style="height: 40%;"></div>
+<div class="w-1/2 rounded-t-full bg-green-400" style="height: 45%;"></div>
+</div>
+<span>21</span>
+</div>
+</div>
+<p class="text-xs text-zinc-500 dark:text-zinc-400 mt-4">只统计奶粉和母乳，母乳按照奶粉的平均值计算。</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 z-20 flex justify-around border-t border-zinc-200 bg-background-light/80 dark:border-zinc-800 dark:bg-background-dark/80 pb-safe backdrop-blur-lg">
+<a class="flex flex-col items-center gap-1 pt-2 pb-1 text-zinc-500 dark:text-zinc-400 w-full" href="#">
+<span class="material-symbols-outlined text-2xl">home</span>
+<span class="text-xs font-medium">主页</span>
+</a>
+<a class="flex flex-col items-center gap-1 pt-2 pb-1 text-zinc-900 dark:text-white w-full" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+<span class="text-xs font-medium">统计</span>
+</a>
+<a class="flex flex-col items-center gap-1 pt-2 pb-1 text-zinc-500 dark:text-zinc-400 w-full" href="#">
+<span class="material-symbols-outlined text-2xl">person</span>
+<span class="text-xs font-medium">我的</span>
+</a>
+</nav>
+</body></html>

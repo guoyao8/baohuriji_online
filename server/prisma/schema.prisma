@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String   @unique
+  password  String
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  families       FamilyMember[]
+  feedingRecords FeedingRecord[]
+  createdFamilies Family[]       @relation("FamilyCreator")
+}
+
+model Family {
+  id         String   @id @default(uuid())
+  name       String?
+  inviteCode String?  @unique
+  createdBy  String
+  creator    User     @relation("FamilyCreator", fields: [createdBy], references: [id])
+  createdAt  DateTime @default(now())
+
+  members          FamilyMember[]
+  babies           Baby[]
+  feedingRecords   FeedingRecord[]
+  reminderSettings ReminderSettings[]
+}
+
+model FamilyMember {
+  id       String @id @default(uuid())
+  familyId String
+  userId   String
+  role     String @default("member") // admin, member
+  nickname String
+
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+  joinedAt  DateTime @default(now())
+
+  @@unique([familyId, userId])
+}
+
+model Baby {
+  id        String   @id @default(uuid())
+  familyId  String
+  name      String
+  gender    String // male, female
+  birthDate DateTime
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  family         Family             @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  feedingRecords FeedingRecord[]
+  reminders      ReminderSettings[]
+}
+
+model FeedingRecord {
+  id           String   @id @default(uuid())
+  babyId       String
+  familyId     String
+  recordedBy   String
+  feedingType  String // breast, formula, solid
+  amount       Float?
+  unit         String? // ml, 斤, g
+  duration     Int? // 秒
+  feedingTime  DateTime
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  baby   Baby   @relation(fields: [babyId], references: [id], onDelete: Cascade)
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [recordedBy], references: [id])
+}
+
+model ReminderSettings {
+  id              String   @id @default(uuid())
+  familyId        String
+  babyId          String?
+  enabled         Boolean  @default(true)
+  intervalHours   Int      @default(3)
+  intervalMinutes Int      @default(0)
+  reminderMethod  String   @default("both") // vibrate, sound, both
+  ringtone        String   @default("default")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  family Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  baby   Baby?  @relation(fields: [babyId], references: [id], onDelete: Cascade)
+
+  @@unique([familyId, babyId])
+}

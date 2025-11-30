@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="" lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>新增喂养记录 - 选择配方奶</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            min-height: 100dvh;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-zinc-900 dark:text-zinc-100">
+<div class="relative flex min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm pt-safe">
+<div class="flex h-14 items-center justify-between px-2">
+<div class="flex size-10 items-center justify-center">
+<button class="flex items-center justify-center text-zinc-800 dark:text-zinc-200">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<h1 class="text-lg font-bold">新增喂养记录</h1>
+<div class="flex size-10 items-center justify-center">
+</div>
+</div>
+</header>
+<main class="flex-grow px-4 pb-24">
+<div class="pt-2 pb-4">
+<div class="flex h-10 flex-1 items-center justify-center rounded-lg bg-zinc-200 dark:bg-zinc-800 p-1">
+<label class="flex h-full flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-md px-2 text-sm font-medium leading-normal text-zinc-500 dark:text-zinc-400 has-[:checked]:bg-white has-[:checked]:text-zinc-900 has-[:checked]:shadow-sm dark:has-[:checked]:bg-zinc-900/50 dark:has-[:checked]:text-white">
+<span class="truncate">宝宝 A</span>
+<input checked="" class="invisible w-0" name="baby-selector" type="radio" value="宝宝 A"/>
+</label>
+<label class="flex h-full flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-md px-2 text-sm font-medium leading-normal text-zinc-500 dark:text-zinc-400 has-[:checked]:bg-white has-[:checked]:text-zinc-900 has-[:checked]:shadow-sm dark:has-[:checked]:bg-zinc-900/50 dark:has-[:checked]:text-white">
+<span class="truncate">宝宝 B</span>
+<input class="invisible w-0" name="baby-selector" type="radio" value="宝宝 B"/>
+</label>
+</div>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2">喂养类型</label>
+<div class="grid grid-cols-3 gap-3">
+<button class="flex flex-col items-center justify-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-3 text-zinc-700 dark:text-zinc-300">
+<span class="material-symbols-outlined" style="font-size: 28px;">breastfeeding</span>
+<span class="text-sm font-medium">母乳</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 rounded-xl border border-primary bg-primary/10 py-3 text-primary">
+<span class="material-symbols-outlined" style="font-size: 28px;">water_bottle</span>
+<span class="text-sm font-medium">配方奶</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-3 text-zinc-700 dark:text-zinc-300">
+<span class="material-symbols-outlined" style="font-size: 28px;">restaurant</span>
+<span class="text-sm font-medium">辅食</span>
+</button>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2" for="amount">喂养量</label>
+<div class="relative">
+<input class="w-full rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-4 text-center text-3xl font-bold text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:border-primary focus:ring-primary" id="amount" type="number" value="150"/>
+<span class="absolute inset-y-0 right-4 flex items-center text-zinc-500 dark:text-zinc-400">ml</span>
+</div>
+<div class="mt-2 grid grid-cols-5 gap-2">
+<button class="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">-30</button>
+<button class="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">-10</button>
+<button class="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">+10</button>
+<button class="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">+30</button>
+<button class="rounded-lg bg-zinc-200/80 dark:bg-zinc-800/80 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+<span class="material-symbols-outlined text-base">water_drop</span>
+</button>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2" for="time">喂养时间</label>
+<div class="relative">
+<span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-zinc-500 dark:text-zinc-400">
+<span class="material-symbols-outlined">schedule</span>
+</span>
+<input class="w-full rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-4 pl-12 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:border-primary focus:ring-primary" id="time" type="text" value="今天 14:30"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-2" for="duration">喂养时长 (可选)</label>
+<div class="relative">
+<span class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-zinc-500 dark:text-zinc-400">
+<span class="material-symbols-outlined">timer</span>
+</span>
+<input class="w-full rounded-xl border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-4 pl-12 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:border-primary focus:ring-primary" id="duration" placeholder="例如: 15 分钟" type="text"/>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark p-4 pb-safe-or-4 border-t border-zinc-200 dark:border-zinc-800">
+<button class="w-full h-12 rounded-xl bg-primary text-white font-bold text-lg flex items-center justify-center">
+            保存
+        </button>
+</div>
+</div>
+</body></html>

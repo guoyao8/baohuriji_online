@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html class="" lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>喂养记录主页</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex min-h-screen w-full flex-col">
+<header class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm pt-safe pb-3">
+<div class="flex h-14 items-center justify-between px-4">
+<div class="flex size-10 shrink-0 items-center justify-center">
+<div class="aspect-square size-8 rounded-full bg-cover bg-center" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA7xA86b_1W9XSLnKpjsyAdOKklyASYGDkb6jpDRpFmmzpNPlMOtXVtbm7kCBwCHiW3AcRGGmrduo-H6XY6mTO5AgztlB9hM8oWazrezr-JSeDmUNffkoZ6doCsUQVFf0Fsy2x4aos43RMWnXgwl5FHsW-XeFKMt4Nn0j74xP_YtnSFSYIOMqf4Q8atJ2A-edKudUQdzCVHNfEW2gxCy_4RKW1EAAc1wKvrE8KUM69eMsOiNVYeDDai-Lvpd58PIrkzNwwuBYNpXGM");'></div>
+</div>
+<div class="flex-grow">
+<div class="flex justify-center">
+<div class="inline-flex rounded-full bg-zinc-200/80 dark:bg-zinc-800 p-1">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="baby_selector" type="radio" value="宝宝 A"/>
+<span class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-zinc-600 dark:text-zinc-300 transition-colors peer-checked:bg-white dark:peer-checked:bg-zinc-900/80 peer-checked:text-zinc-900 dark:peer-checked:text-white">
+<div class="size-5 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAkh9KSqYdVkvntEXdGJjIe60aSu6FAZLE-24hZEoxjMk5Rh0cybd2SiQz-gvGNP0rqipFm6uXauMIRTQ-NblCDYFuEHOybrC1JT4GU9a9qqNcqelEsra-AsbvKonXmSBCGjM3NovpcQkvRP6p-uhsnsxZ8ITup8MMS77-NoW1P6ihRKVJdo1QmY2hEPyzR_31cLAOZJFcormsXIUA0uTUs6FLlB7cDvU-Y0kWlxrKED7FW_9EZNU5hHdNSFjhN4rZ7pPjEHtkdoQo")'></div>
+<span>宝宝 A</span>
+</span>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="baby_selector" type="radio" value="宝宝 B"/>
+<span class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-zinc-600 dark:text-zinc-300 transition-colors peer-checked:bg-white dark:peer-checked:bg-zinc-900/80 peer-checked:text-zinc-900 dark:peer-checked:text-white">
+<div class="size-5 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAkh9KSqYdVkvntEXdGJjIe60aSu6FAZLE-24hZEoxjMk5Rh0cybd2SiQz-gvGNP0rqipFm6uXauMIRTQ-NblCDYFuEHOybrC1JT4GU9a9qqNcqelEsra-AsbvKonXmSBCGjM3NovpcQkvRP6p-uhsnsxZ8ITup8MMS77-NoW1P6ihRKVJdo1QmY2hEPyzR_31cLAOZJFcormsXIUA0uTUs6FLlB7cDvU-Y0kWlxrKED7FW_9EZNU5hHdNSFjhN4rZ7pPjEHtkdoQo")'></div>
+<span>宝宝 B</span>
+</span>
+</label>
+</div>
+</div>
+</div>
+<div class="flex size-10 items-center justify-center">
+<button class="flex items-center justify-center text-zinc-800 dark:text-zinc-200">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-grow px-4 pb-32">
+<h3 class="pt-4 pb-2 text-lg font-bold leading-tight tracking-[-0.015em] text-zinc-900 dark:text-white">今日统计</h3>
+<div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-4">
+<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-1.5">
+<p class="text-sm font-medium text-zinc-600 dark:text-zinc-400">今日喂养</p>
+<p class="text-xl font-bold leading-tight tracking-tight text-zinc-900 dark:text-white">奶粉 360ml + 母乳 2次 + 辅食 30g</p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-1.5">
+<p class="text-sm font-medium text-zinc-600 dark:text-zinc-400">喂养次数</p>
+<p class="text-2xl font-bold leading-tight tracking-tight text-zinc-900 dark:text-white">5 次</p>
+</div>
+<div class="flex flex-col gap-1.5">
+<p class="text-sm font-medium text-zinc-600 dark:text-zinc-400">上次喂养</p>
+<p class="text-2xl font-bold leading-tight tracking-tight text-zinc-900 dark:text-white">2小时前</p>
+</div>
+</div>
+</div>
+</div>
+<h3 class="pt-6 pb-2 text-lg font-bold leading-tight tracking-[-0.015em] text-zinc-900 dark:text-white">最近记录</h3>
+<div class="space-y-3">
+<div class="flex items-center gap-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined" style="font-size: 28px;">breastfeeding</span>
+</div>
+<div class="flex-grow">
+<p class="font-semibold text-zinc-800 dark:text-zinc-200">瓶喂</p>
+<p class="text-sm text-zinc-500 dark:text-zinc-400">今天 14:30 · 妈妈</p>
+</div>
+<div class="text-right">
+<p class="text-lg font-bold text-zinc-900 dark:text-white">120 ml</p>
+</div>
+</div>
+<div class="flex items-center gap-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-pink-500/10 text-pink-500">
+<span class="material-symbols-outlined" style="font-size: 28px;">breastfeeding</span>
+</div>
+<div class="flex-grow">
+<p class="font-semibold text-zinc-800 dark:text-zinc-200">母乳</p>
+<p class="text-sm text-zinc-500 dark:text-zinc-400">今天 11:15 · 妈妈</p>
+</div>
+<div class="text-right">
+<p class="text-lg font-bold text-zinc-900 dark:text-white">15 min</p>
+<p class="text-xs text-zinc-500 dark:text-zinc-400">左</p>
+</div>
+</div>
+<div class="flex items-center gap-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined" style="font-size: 28px;">breastfeeding</span>
+</div>
+<div class="flex-grow">
+<p class="font-semibold text-zinc-800 dark:text-zinc-200">瓶喂</p>
+<p class="text-sm text-zinc-500 dark:text-zinc-400">今天 08:00 · 爸爸</p>
+</div>
+<div class="text-right">
+<p class="text-lg font-bold text-zinc-900 dark:text-white">150 ml</p>
+</div>
+</div>
+<div class="flex items-center gap-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 p-4">
+<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-500/10 text-green-500">
+<span class="material-symbols-outlined" style="font-size: 28px;">restaurant</span>
+</div>
+<div class="flex-grow">
+<p class="font-semibold text-zinc-800 dark:text-zinc-200">辅食</p>
+<p class="text-sm text-zinc-500 dark:text-zinc-400">昨天 18:30 · 奶奶</p>
+</div>
+<div class="text-right">
+<p class="text-lg font-bold text-zinc-900 dark:text-white">30 g</p>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed bottom-20 right-0 left-0 z-20 flex justify-center">
+<button class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined" style="font-size: 32px;">add</span>
+</button>
+</div>
+<nav class="fixed bottom-0 left-0 right-0 z-10 border-t border-zinc-200 dark:border-zinc-800 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm pb-safe">
+<div class="grid h-16 grid-cols-3">
+<a class="flex flex-col items-center justify-center gap-1 text-primary dark:text-primary" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-xs font-medium">主页</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-zinc-500 dark:text-zinc-400" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-xs font-medium">统计</span>
+</a>
+<a class="flex flex-col items-center justify-center gap-1 text-zinc-500 dark:text-zinc-400" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-xs font-medium">我的</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

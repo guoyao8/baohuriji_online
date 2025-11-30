@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>家庭模式设置</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              "display": ["Lexend", "Noto Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col font-display group/design-root overflow-x-hidden">
+<!-- Top App Bar -->
+<div class="flex items-center bg-background-light dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10">
+<button class="text-zinc-900 dark:text-white flex size-12 shrink-0 items-center justify-center">
+<span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+</button>
+<h1 class="text-zinc-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">家庭模式设置</h1>
+<div class="size-12 shrink-0"></div> <!-- Spacer for centering title -->
+</div>
+<!-- Main Content Area -->
+<div class="flex flex-col flex-grow px-4 pt-4 pb-6">
+<!-- Member List Container -->
+<div class="flex flex-col bg-white dark:bg-zinc-800 rounded-xl overflow-hidden shadow-sm">
+<!-- ListItem 1: Dad (Admin) -->
+<div class="flex items-center gap-4 px-4 min-h-[72px] py-3 justify-between">
+<div class="flex items-center gap-4">
+<img alt="Avatar of Dad" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" data-alt="Avatar of Dad" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJYr5JOWaivM0HnLjgf4CL_qg0A8fRVoD__bpb9_ZKvR7RVx4BxFPBIlQJiapsRVQD0sLsyMiI9eXtwSykOe5EpT-MHo2hT96PUQ5JaBcQw0WrLl96zeWZ7aHr6sCXuIfX3ABDDXpy9Kku9976sjcQ2_mP1I0ZzCvKUJ1vCoRPdxk27d490-gnnzkQu2EEZg5lPk0NxI9OJJMDgavz3zliUpWyD0cTtR5Bq2De4wggmImEsSf2yn4x2gGO5nQyncRtq3lLB8VL7aE"/>
+<div class="flex flex-col justify-center">
+<p class="text-zinc-900 dark:text-white text-base font-medium leading-normal line-clamp-1">爸爸 (我)</p>
+<p class="text-zinc-500 dark:text-zinc-400 text-sm font-normal leading-normal line-clamp-2">管理员</p>
+</div>
+</div>
+<div class="shrink-0">
+<span class="material-symbols-outlined text-zinc-400 dark:text-zinc-500 text-2xl">chevron_right</span>
+</div>
+</div>
+<div class="h-px bg-background-light dark:bg-background-dark mx-4"></div>
+<!-- ListItem 2: Mom (Admin) -->
+<div class="flex items-center gap-4 px-4 min-h-[72px] py-3 justify-between">
+<div class="flex items-center gap-4">
+<img alt="Avatar of Mom" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" data-alt="Avatar of Mom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5rugpydGiEhEwSk8f1NXI1fxgFUKdkIYzkztO2tJhQII8LWQlqHA7HFpfpXoU6AWi7h5Vq959_f6q9oTUsCmld66nxEr5LjAN3PX8-gWe7hdQPkr5u1V3gqWYHeiH1lxtQkov5lXKJiTcYMPzJOcqNavR-7K9q4az8A-1u7LXKkTffZTwS9K889k9e0eSYg3FOIUcjEmA7DTjt5s-pFAtEICe545cu99YtqkgEz1MKvD8wuC7ZVvtkgnnWlEZbkLwXIWfzY61J5Q"/>
+<div class="flex flex-col justify-center">
+<p class="text-zinc-900 dark:text-white text-base font-medium leading-normal line-clamp-1">妈妈</p>
+<p class="text-zinc-500 dark:text-zinc-400 text-sm font-normal leading-normal line-clamp-2">管理员</p>
+</div>
+</div>
+<div class="shrink-0">
+<span class="material-symbols-outlined text-zinc-400 dark:text-zinc-500 text-2xl">chevron_right</span>
+</div>
+</div>
+<div class="h-px bg-background-light dark:bg-background-dark mx-4"></div>
+<!-- ListItem 3: Grandma (Member) -->
+<div class="flex items-center gap-4 px-4 min-h-[72px] py-3 justify-between">
+<div class="flex items-center gap-4">
+<img alt="Avatar of Grandma" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14" data-alt="Avatar of Grandma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGZXaqJ4AeOrT-LGHYN5VtGqaa42sfeGBYX372XeWKI4GnpFwNRSsmyk4qYyCqop3DCor9u7a9rUid-E1LFTbMhiFhR7Nu0-VjLz5AiF22wpYA9t5nQBoCjY5BonoCNmJACgj_oJpjr98VTBMUtt7lL7WzACA-Tzozdg2lZ_WL5V9jn46H8T3yTAIswLf8UvLGKjV5Kk_MvTCyRtaxNyytxYmtZCM1A2Zczu2kvNV3xQCjZkSTnGiwSuPIMx_wwvrGyVrQjCYrhVY"/>
+<div class="flex flex-col justify-center">
+<p class="text-zinc-900 dark:text-white text-base font-medium leading-normal line-clamp-1">奶奶</p>
+<p class="text-zinc-500 dark:text-zinc-400 text-sm font-normal leading-normal line-clamp-2">家庭成员</p>
+</div>
+</div>
+<div class="shrink-0">
+<span class="material-symbols-outlined text-zinc-400 dark:text-zinc-500 text-2xl">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Invite Button -->
+<button class="flex items-center justify-center gap-2 w-full mt-6 bg-primary/20 dark:bg-primary/30 text-primary py-4 rounded-xl font-semibold hover:bg-primary/30 dark:hover:bg-primary/40 transition-colors">
+<span class="material-symbols-outlined text-2xl">add</span>
+<span>邀请新成员</span>
+</button>
+<!-- Spacer to push text to bottom -->
+<div class="flex-grow"></div>
+<!-- Informational Text -->
+<p class="text-zinc-500 dark:text-zinc-400 text-sm font-normal leading-normal py-4 px-4 text-center">邀请家人共同记录宝宝的成长点滴</p>
+</div>
+</div>
+</body></html>
