@@ -2,6 +2,7 @@ import { D1Database } from '@cloudflare/workers-types';
 
 export interface Env {
   DB: D1Database;
+  DATABASE_URL: string;
   ENVIRONMENT: string;
   ALLOWED_ORIGINS: string;
   JWT_SECRET: string;

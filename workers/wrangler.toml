@@ -16,6 +16,7 @@ ENVIRONMENT = "production"
 [env.production.vars]
 ALLOWED_ORIGINS = "https://guoyao8.github.io"
 JWT_SECRET = "baohuriji-secret-key-2024"
+DATABASE_URL = "mysql://guoyao:91TohnXnJuertVZx@mysql2.sqlpub.com:3307/baobeiriji"
 
 [env.development]
-vars = { ENVIRONMENT = "development", ALLOWED_ORIGINS = "http://localhost:5173", JWT_SECRET = "dev-secret-key" }
+vars = { ENVIRONMENT = "development", ALLOWED_ORIGINS = "http://localhost:5173", JWT_SECRET = "dev-secret-key", DATABASE_URL = "mysql://guoyao:91TohnXnJuertVZx@mysql2.sqlpub.com:3307/baobeiriji" }
