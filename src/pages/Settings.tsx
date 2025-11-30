@@ -1,14 +1,23 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
+import { useFeedingStore } from '@/stores/feedingStore';
 
 export default function Settings() {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
+  const { clearCache } = useFeedingStore();
 
   const handleLogout = async () => {
-    if (confirm('确定要退出登录吗?')) {
+    if (confirm('确定要退出登录吗？')) {
       await logout();
       navigate('/login');
+    }
+  };
+
+  const handleClearCache = () => {
+    if (confirm('清除缓存后，下次加载页面会重新获取数据。确定要继续吗？')) {
+      clearCache();
+      alert('✅ 缓存已清除');
     }
   };
 
@@ -95,7 +104,7 @@ export default function Settings() {
             <div className="flex flex-col overflow-hidden rounded-xl bg-white dark:bg-slate-800/50 shadow-sm">
               <button
                 onClick={() => navigate('/reminder-settings')}
-                className="flex items-center gap-4 bg-white dark:bg-slate-800/50 px-4 min-h-[56px] justify-between"
+                className="flex items-center gap-4 bg-white dark:bg-slate-800/50 px-4 min-h-[56px] justify-between border-b border-slate-100 dark:border-slate-700/50"
               >
                 <div className="flex items-center gap-4">
                   <div className="text-slate-700 dark:text-slate-200 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 shrink-0 size-10">
@@ -103,6 +112,25 @@ export default function Settings() {
                   </div>
                   <p className="text-slate-900 dark:text-slate-50 text-base font-normal leading-normal flex-1 truncate">
                     喂养提醒
+                  </p>
+                </div>
+                <div className="shrink-0">
+                  <span className="material-symbols-outlined text-slate-400 dark:text-slate-500">
+                    chevron_right
+                  </span>
+                </div>
+              </button>
+              
+              <button
+                onClick={handleClearCache}
+                className="flex items-center gap-4 bg-white dark:bg-slate-800/50 px-4 min-h-[56px] justify-between"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="text-slate-700 dark:text-slate-200 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-700 shrink-0 size-10">
+                    <span className="material-symbols-outlined">cleaning_services</span>
+                  </div>
+                  <p className="text-slate-900 dark:text-slate-50 text-base font-normal leading-normal flex-1 truncate">
+                    清除缓存
                   </p>
                 </div>
                 <div className="shrink-0">

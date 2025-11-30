@@ -387,16 +387,33 @@ export function FamilySettings() {
   const [isLoading, setIsLoading] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
+  const [membersCache, setMembersCache] = useState<{ data: any[]; timestamp: number } | null>(null);
 
   useEffect(() => {
     loadMembers();
   }, []);
 
-  const loadMembers = async () => {
+  const loadMembers = async (forceRefresh = false) => {
     try {
+      const now = Date.now();
+      const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
+      
+      // 先从缓存加载
+      if (!forceRefresh && membersCache && now - membersCache.timestamp < CACHE_DURATION) {
+        console.log('使用家庭成员缓存');
+        setMembers(membersCache.data);
+        return;
+      }
+      
+      // 如果有缓存，先显示缓存数据
+      if (membersCache) {
+        setMembers(membersCache.data);
+      }
+      
       const { familyService } = await import('@/services/family');
       const data = await familyService.getMembers();
       setMembers(data);
+      setMembersCache({ data, timestamp: now });
     } catch (error) {
       console.error('Failed to load family members:', error);
     }

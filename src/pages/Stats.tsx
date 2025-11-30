@@ -13,16 +13,37 @@ export default function Stats() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [stats, setStats] = useState<DailyStats[]>([]);
   const [trendData, setTrendData] = useState<TrendData[]>([]);
+  const [statsCache, setStatsCache] = useState<Record<string, { data: DailyStats[]; timestamp: number }>>({});
+  const [trendCache, setTrendCache] = useState<Record<string, { data: TrendData[]; timestamp: number }>>({});
 
   useEffect(() => {
     loadStats();
-  }, [currentDate, babies, viewMode]); // 添加 viewMode 依赖
+  }, [currentDate, babies, viewMode]);
 
   const loadStats = async () => {
     try {
       const dateStr = format(currentDate, 'yyyy-MM-dd');
-      const data = await feedingService.getDailyStats(dateStr);
-      setStats(data);
+      const CACHE_DURATION = 2 * 60 * 1000; // 2分钟缓存（统计数据更新频繁）
+      const now = Date.now();
+      
+      // 统计数据缓存键
+      const statsCacheKey = dateStr;
+      if (statsCache[statsCacheKey] && now - statsCache[statsCacheKey].timestamp < CACHE_DURATION) {
+        console.log('使用统计数据缓存');
+        setStats(statsCache[statsCacheKey].data);
+      } else {
+        // 先显示缓存，然后异步更新
+        if (statsCache[statsCacheKey]) {
+          setStats(statsCache[statsCacheKey].data);
+        }
+        
+        const data = await feedingService.getDailyStats(dateStr);
+        setStats(data);
+        setStatsCache(prev => ({
+          ...prev,
+          [statsCacheKey]: { data, timestamp: now }
+        }));
+      }
 
       const babyIds = babies.map((b) => b.id);
       
@@ -40,13 +61,29 @@ export default function Stats() {
         groupBy = 'day';
       }
       
-      const trend = await feedingService.getTrend({
-        startDate: trendStartDate,
-        endDate: dateStr,
-        babyIds,
-        groupBy,
-      });
-      setTrendData(trend);
+      // 趋势数据缓存键
+      const trendCacheKey = `${trendStartDate}_${dateStr}_${groupBy}_${babyIds.join(',')}`;
+      if (trendCache[trendCacheKey] && now - trendCache[trendCacheKey].timestamp < CACHE_DURATION) {
+        console.log('使用趋势数据缓存');
+        setTrendData(trendCache[trendCacheKey].data);
+      } else {
+        // 先显示缓存，然后异步更新
+        if (trendCache[trendCacheKey]) {
+          setTrendData(trendCache[trendCacheKey].data);
+        }
+        
+        const trend = await feedingService.getTrend({
+          startDate: trendStartDate,
+          endDate: dateStr,
+          babyIds,
+          groupBy,
+        });
+        setTrendData(trend);
+        setTrendCache(prev => ({
+          ...prev,
+          [trendCacheKey]: { data: trend, timestamp: now }
+        }));
+      }
     } catch (error) {
       console.error('Failed to load stats:', error);
     }

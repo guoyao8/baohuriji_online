@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from './stores/authStore';
 import { useFeedingStore } from './stores/feedingStore';
 import Login from './pages/Login';
@@ -19,13 +19,25 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 function App() {
   const { isAuthenticated, fetchUser } = useAuthStore();
   const { fetchBabies } = useFeedingStore();
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchUser();
-      fetchBabies();
-    }
-  }, [isAuthenticated, fetchUser, fetchBabies]);
+    const initialize = async () => {
+      if (isAuthenticated && !isInitialized) {
+        try {
+          await Promise.all([
+            fetchUser(),
+            fetchBabies(), // 会使用缓存
+          ]);
+          setIsInitialized(true);
+        } catch (error) {
+          console.error('Failed to initialize app:', error);
+        }
+      }
+    };
+    
+    initialize();
+  }, [isAuthenticated]); // 只在登录状态变化时执行
 
   return (
     <BrowserRouter>
