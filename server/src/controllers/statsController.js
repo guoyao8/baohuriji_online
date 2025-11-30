@@ -201,6 +201,12 @@ export const getTrend = async (req, res) => {
         .in('familyId', familyIds)
         .order('createdAt', { ascending: true });
 
+      // 如果指定了 babyIds，筛选特定宝宝
+      if (babyIds) {
+        const ids = Array.isArray(babyIds) ? babyIds : [babyIds];
+        babyQuery = babyQuery.in('id', ids);
+      }
+
       const { data: babies } = await babyQuery;
 
       if (!babies || babies.length === 0) {
@@ -224,30 +230,30 @@ export const getTrend = async (req, res) => {
 
       const { data: records } = await recordQuery;
 
-      // 计算每个宝宝近3天母乳的平均值
-      const getBreastAverage = async (babyId) => {
-        const threeDaysAgo = new Date();
-        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-        
-        const { data: recentRecords } = await supabase
-          .from('FeedingRecord')
-          .select('amount')
-          .eq('babyId', babyId)
-          .eq('feedingType', 'breast')
-          .not('amount', 'is', null)
-          .gte('feedingTime', threeDaysAgo.toISOString());
+      // 一次性获取所有宝宝近3天的母乳记录（有量的）
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+      
+      const babyIdList = babies.map(b => b.id);
+      const { data: recentBreastRecords } = await supabase
+        .from('FeedingRecord')
+        .select('babyId, amount')
+        .in('babyId', babyIdList)
+        .eq('feedingType', 'breast')
+        .not('amount', 'is', null)
+        .gte('feedingTime', threeDaysAgo.toISOString());
 
-        if (!recentRecords || recentRecords.length === 0) return 120;
-        
-        const total = recentRecords.reduce((sum, r) => sum + r.amount, 0);
-        return Math.round(total / recentRecords.length);
-      };
-
-      // 为每个宝宝预先计算母乳平均值
+      // 按宝宝计算平均值
       const breastAverages = {};
-      for (const baby of babies) {
-        breastAverages[baby.id] = await getBreastAverage(baby.id);
-      }
+      babyIdList.forEach(babyId => {
+        const babyRecords = recentBreastRecords?.filter(r => r.babyId === babyId) || [];
+        if (babyRecords.length === 0) {
+          breastAverages[babyId] = 120;
+        } else {
+          const total = babyRecords.reduce((sum, r) => sum + r.amount, 0);
+          breastAverages[babyId] = Math.round(total / babyRecords.length);
+        }
+      });
 
       if (groupBy === 'day') {
         // 按天统计
