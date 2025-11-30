@@ -80,6 +80,10 @@ export const register = async (req, res) => {
     }
 
     // 使用 Prisma（降级方案）
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
+
     console.log('使用 Prisma');
     console.log('检查用户是否存在...');
     const existingUser = await prisma.user.findUnique({
@@ -148,10 +152,53 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    console.log('登录请求:', { username, useSupabase: !!supabase });
+
     if (!username || !password) {
       return res.status(400).json({ error: '用户名和密码不能为空' });
     }
 
+    // 使用 Supabase
+    if (supabase) {
+      console.log('使用 Supabase REST API');
+
+      const { data: user, error } = await supabase
+        .from('User')
+        .select('id, username, password, avatarUrl, createdAt')
+        .eq('username', username)
+        .single();
+
+      if (error || !user) {
+        console.log('用户未找到:', error);
+        return res.status(401).json({ error: '用户名或密码错误' });
+      }
+
+      const isPasswordValid = await comparePassword(password, user.password);
+
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: '用户名或密码错误' });
+      }
+
+      const token = generateToken(user.id);
+
+      console.log('登录成功 (Supabase)');
+      return res.json({
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          avatarUrl: user.avatarUrl,
+          createdAt: user.createdAt,
+        },
+      });
+    }
+
+    // 使用 Prisma（降级方案）
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
+
+    console.log('使用 Prisma');
     const user = await prisma.user.findUnique({
       where: { username },
     });
@@ -168,6 +215,7 @@ export const login = async (req, res) => {
 
     const token = generateToken(user.id);
 
+    console.log('登录成功 (Prisma)');
     res.json({
       token,
       user: {
