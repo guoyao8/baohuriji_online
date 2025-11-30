@@ -1,16 +1,86 @@
 import prisma from '../config/database.js';
+import supabase from '../config/supabase.js';
 import { hashPassword, comparePassword, generateToken } from '../utils/auth.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export const register = async (req, res) => {
   try {
     const { username, password, inviteCode } = req.body;
 
-    console.log('注册请求:', { username, hasPassword: !!password, inviteCode });
+    console.log('注册请求:', { username, hasPassword: !!password, inviteCode, useSupabase: !!supabase });
 
     if (!username || !password) {
       return res.status(400).json({ error: '用户名和密码不能为空' });
     }
 
+    const hashedPassword = await hashPassword(password);
+    const userId = uuidv4();
+    const familyId = uuidv4();
+
+    // 使用 Supabase 客户端
+    if (supabase) {
+      console.log('使用 Supabase REST API');
+
+      // 检查用户是否存在
+      const { data: existingUser } = await supabase
+        .from('User')
+        .select('id')
+        .eq('username', username)
+        .single();
+
+      if (existingUser) {
+        return res.status(400).json({ error: '用户名已存在' });
+      }
+
+      // 创建用户
+      const { data: user, error: userError } = await supabase
+        .from('User')
+        .insert({
+          id: userId,
+          username,
+          password: hashedPassword,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+        .select('id, username, avatarUrl, createdAt')
+        .single();
+
+      if (userError) throw userError;
+
+      // 创建家庭
+      const { error: familyError } = await supabase
+        .from('Family')
+        .insert({
+          id: familyId,
+          name: `${username}的家庭`,
+          createdBy: userId,
+          createdAt: new Date().toISOString(),
+        });
+
+      if (familyError) throw familyError;
+
+      // 添加家庭成员
+      const { error: memberError } = await supabase
+        .from('FamilyMember')
+        .insert({
+          id: uuidv4(),
+          familyId: familyId,
+          userId: userId,
+          role: 'admin',
+          nickname: username,
+          joinedAt: new Date().toISOString(),
+        });
+
+      if (memberError) throw memberError;
+
+      const token = generateToken(userId);
+
+      console.log('注册完成 (Supabase)');
+      return res.status(201).json({ token, user });
+    }
+
+    // 使用 Prisma（降级方案）
+    console.log('使用 Prisma');
     console.log('检查用户是否存在...');
     const existingUser = await prisma.user.findUnique({
       where: { username },
@@ -19,9 +89,6 @@ export const register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ error: '用户名已存在' });
     }
-
-    console.log('哈希密码...');
-    const hashedPassword = await hashPassword(password);
 
     console.log('创建用户...');
     const user = await prisma.user.create({
@@ -39,69 +106,26 @@ export const register = async (req, res) => {
 
     console.log('用户创建成功:', user.id);
 
-    let familyId;
-
-    // 如果提供了邀请码，尝试加入家庭
-    if (inviteCode) {
-      const family = await prisma.family.findFirst({
-        where: { inviteCode },
-      });
-
-      console.log('邀请码查询结果:', inviteCode, family ? '找到家庭' : '未找到家庭');
-
-      if (family) {
-        // 加入已有家庭
-        await prisma.familyMember.create({
-          data: {
-            familyId: family.id,
+    // 创建家庭
+    console.log('创建新家庭...');
+    const family = await prisma.family.create({
+      data: {
+        name: `${username}的家庭`,
+        createdBy: user.id,
+        members: {
+          create: {
             userId: user.id,
-            role: 'member',
+            role: 'admin',
             nickname: username,
           },
-        });
-        familyId = family.id;
-        console.log('用户成功加入家庭:', family.id, family.name);
-      } else {
-        // 邀请码无效，创建自己的家庭
-        console.log('邀请码无效，创建新家庭');
-        const newFamily = await prisma.family.create({
-          data: {
-            name: `${username}的家庭`,
-            createdBy: user.id,
-            members: {
-              create: {
-                userId: user.id,
-                role: 'admin',
-                nickname: username,
-              },
-            },
-          },
-        });
-        familyId = newFamily.id;
-      }
-    } else {
-      // 没有邀请码，自动创建家庭
-      console.log('创建新家庭...');
-      const family = await prisma.family.create({
-        data: {
-          name: `${username}的家庭`,
-          createdBy: user.id,
-          members: {
-            create: {
-              userId: user.id,
-              role: 'admin',
-              nickname: username,
-            },
-          },
         },
-      });
-      familyId = family.id;
-      console.log('家庭创建成功:', familyId);
-    }
+      },
+    });
+    console.log('家庭创建成功:', family.id);
 
     const token = generateToken(user.id);
 
-    console.log('注册完成');
+    console.log('注册完成 (Prisma)');
     res.status(201).json({
       token,
       user,
