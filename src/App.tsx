@@ -16,6 +16,7 @@ const FamilySettings = lazy(() => import('./pages/BabyProfile').then(m => ({ def
 const ReminderSettings = lazy(() => import('./pages/BabyProfile').then(m => ({ default: m.ReminderSettings })));
 const EditBaby = lazy(() => import('./pages/BabyProfile').then(m => ({ default: m.EditBaby })));
 const AccountSettings = lazy(() => import('./pages/AccountSettings'));
+const ChangePassword = lazy(() => import('./pages/ChangePassword'));
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -167,6 +168,16 @@ function App() {
             <PrivateRoute>
               <Suspense fallback={<LoadingFallback />}>
                 <AccountSettings />
+              </Suspense>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <PrivateRoute>
+              <Suspense fallback={<LoadingFallback />}>
+                <ChangePassword />
               </Suspense>
             </PrivateRoute>
           }

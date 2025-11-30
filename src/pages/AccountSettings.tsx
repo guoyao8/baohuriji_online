@@ -78,7 +78,7 @@ export default function AccountSettings() {
 
         <div className="flex flex-col rounded-xl bg-white dark:bg-slate-800/50 shadow-sm">
           <button
-            onClick={() => alert('修改密码功能开发中...')}
+            onClick={() => navigate('/change-password')}
             className="flex items-center gap-4 px-4 min-h-[56px] justify-between"
           >
             <div className="flex items-center gap-4">

@@ -344,3 +344,81 @@ export const updateProfile = async (req, res) => {
     res.status(500).json({ error: '更新用户信息失败' });
   }
 };
+
+export const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ error: '请提供当前密码和新密码' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: '新密码至少6位' });
+    }
+
+    // 使用 Supabase
+    if (supabase) {
+      // 获取用户当前密码
+      const { data: user, error: fetchError } = await supabase
+        .from('User')
+        .select('password')
+        .eq('id', userId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // 验证旧密码
+      const isPasswordValid = await comparePassword(oldPassword, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: '当前密码错误' });
+      }
+
+      // 更新密码
+      const hashedPassword = await hashPassword(newPassword);
+      const { error: updateError } = await supabase
+        .from('User')
+        .update({ 
+          password: hashedPassword,
+          updatedAt: new Date().toISOString() 
+        })
+        .eq('id', userId);
+
+      if (updateError) throw updateError;
+
+      return res.json({ message: '密码修改成功' });
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: '用户不存在' });
+    }
+
+    // 验证旧密码
+    const isPasswordValid = await comparePassword(oldPassword, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: '当前密码错误' });
+    }
+
+    // 更新密码
+    const hashedPassword = await hashPassword(newPassword);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+
+    res.json({ message: '密码修改成功' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ error: '修改密码失败' });
+  }
+};

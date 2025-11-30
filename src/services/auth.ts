@@ -30,4 +30,9 @@ export const authService = {
   updateProfile: async (data: Partial<User>): Promise<User> => {
     return await api.put<any, User>('/users/me', data);
   },
+
+  changePassword: async (data: { oldPassword: string; newPassword: string }): Promise<void> => {
+    await api.put('/auth/change-password', data);
+    localStorage.removeItem('token');
+  },
 };
