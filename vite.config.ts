@@ -79,5 +79,12 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     // 开启 CSS 代码分割
     cssCodeSplit: true,
+    // 生成 source map 用于调试（仅开发环境）
+    sourcemap: false,
+    // 优化依赖预构建
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
   },
 })

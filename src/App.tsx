@@ -5,7 +5,7 @@ import { useFeedingStore } from './stores/feedingStore';
 import Login from './pages/Login';
 import Home from './pages/Home';
 
-// 延迟加载非关键组件
+// 延迟加载非关键组件（不包括 Login 和 Home）
 const AddRecord = lazy(() => import('./pages/AddRecord'));
 const EditRecord = lazy(() => import('./pages/EditRecord'));
 const Stats = lazy(() => import('./pages/Stats'));
@@ -46,13 +46,19 @@ function App() {
     const initialize = async () => {
       if (isAuthenticated && !isInitialized) {
         try {
-          await Promise.all([
+          // 并行加载，不阻塞渲染
+          Promise.all([
             fetchUser(),
-            fetchBabies(), // 会使用缓存
-          ]);
-          setIsInitialized(true);
+            fetchBabies(),
+          ]).then(() => {
+            setIsInitialized(true);
+          }).catch(error => {
+            console.error('Failed to initialize app:', error);
+            setIsInitialized(true); // 即使失败也标记为已初始化
+          });
         } catch (error) {
           console.error('Failed to initialize app:', error);
+          setIsInitialized(true);
         }
       }
     };
