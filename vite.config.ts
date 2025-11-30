@@ -57,4 +57,27 @@ export default defineConfig({
     port: 5173,
     open: true,
   },
+  build: {
+    // 代码分割优化
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React 相关
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // 状态管理
+          'store': ['zustand'],
+          // UI 库
+          'date-utils': ['date-fns'],
+          // HTTP 请求
+          'http': ['axios'],
+        },
+      },
+    },
+    // 使用 esbuild 压缩（更快）
+    minify: 'esbuild',
+    // 警告阈值设置
+    chunkSizeWarningLimit: 1000,
+    // 开启 CSS 代码分割
+    cssCodeSplit: true,
+  },
 })
