@@ -1,0 +1,24 @@
+{
+  "name": "baohuriji-workers",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "db:create": "wrangler d1 create baohuriji",
+    "db:migrate": "wrangler d1 migrations apply baohuriji",
+    "db:migrate:local": "wrangler d1 migrations apply baohuriji --local",
+    "db:execute": "wrangler d1 execute baohuriji --file=./migrations/schema.sql"
+  },
+  "dependencies": {
+    "hono": "^3.11.7",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20231218.0",
+    "wrangler": "^3.22.1",
+    "typescript": "^5.3.3"
+  }
+}

@@ -4,6 +4,7 @@ import path from 'path'
 // import { VitePWA } from 'vite-plugin-pwa' // 需要时取消注释并安装: npm install -D vite-plugin-pwa
 
 export default defineConfig({
+  base: '/baohuriji_online/',
   plugins: [
     react(),
     // 启用 PWA（需要安装 vite-plugin-pwa）
@@ -56,7 +57,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    open: true,
+    open: false,
   },
   build: {
     // 代码分割优化
@@ -81,11 +82,13 @@ export default defineConfig({
     // 开启 CSS 代码分割
     cssCodeSplit: true,
     // 生成 source map 用于调试（仅开发环境）
-    sourcemap: false,
+    sourcemap: process.env.NODE_ENV === 'development',
     // 优化依赖预构建
     commonjsOptions: {
       include: [/node_modules/],
       transformMixedEsModules: true,
     },
+    // 输出目录
+    outDir: 'dist',
   },
 })

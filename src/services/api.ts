@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8787/api';
 
 // 重试配置
 const MAX_RETRIES = 2;
@@ -12,7 +12,10 @@ export const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
+
+console.log('API Base URL:', API_BASE_URL);
 
 // 请求拦截器
 api.interceptors.request.use(
