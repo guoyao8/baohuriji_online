@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFeedingStore } from '@/stores/feedingStore';
 import { useAuthStore } from '@/stores/authStore';
@@ -34,9 +34,9 @@ export default function Home() {
   useEffect(() => {
     calculateTodayStats();
     loadReminderSettings();
-  }, [records]);
+  }, [records]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const calculateTodayStats = () => {
+  const calculateTodayStats = useCallback(() => {
     const today = format(new Date(), 'yyyy-MM-dd');
     const todayRecords = records.filter(
       (r) => format(new Date(r.feedingTime), 'yyyy-MM-dd') === today
@@ -65,9 +65,9 @@ export default function Home() {
       lastFeedingTime,
       nextReminderTime: '',
     });
-  };
+  }, [records]);
 
-  const loadReminderSettings = async () => {
+  const loadReminderSettings = useCallback(async () => {
     try {
       const cacheKey = currentBabyId || 'unified';
       const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
@@ -105,9 +105,9 @@ export default function Home() {
     } catch (error) {
       console.error('Failed to load reminder settings:', error);
     }
-  };
+  }, [currentBabyId, reminderSettingsCache, records]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const calculateReminderTime = (settings: any) => {
+  const calculateReminderTime = useCallback((settings: any) => {
     if (settings.enabled && records.length > 0) {
       const lastRecord = records[0];
       let nextTime = new Date(lastRecord.feedingTime);
@@ -138,9 +138,10 @@ export default function Home() {
         nextReminderTime,
       }));
     }
-  };
+  }, [records]);
 
-  const getFeedingIcon = (type: string) => {
+  // 使用 useMemo 缓存格式化函数
+  const getFeedingIcon = useCallback((type: string) => {
     switch (type) {
       case 'breast':
         return 'breastfeeding';
@@ -151,9 +152,9 @@ export default function Home() {
       default:
         return 'water_bottle';
     }
-  };
+  }, []);
 
-  const getFeedingColor = (type: string) => {
+  const getFeedingColor = useCallback((type: string) => {
     switch (type) {
       case 'breast':
         return 'bg-pink-500/10 text-pink-500';
@@ -164,9 +165,9 @@ export default function Home() {
       default:
         return 'bg-primary/10 text-primary';
     }
-  };
+  }, []);
 
-  const getFeedingTypeName = (type: string) => {
+  const getFeedingTypeName = useCallback((type: string) => {
     switch (type) {
       case 'breast':
         return '母乳';
@@ -177,9 +178,9 @@ export default function Home() {
       default:
         return '';
     }
-  };
+  }, []);
 
-  const formatAmount = (record: FeedingRecord) => {
+  const formatAmount = useCallback((record: FeedingRecord) => {
     if (record.duration) {
       // 不足1分钟显示秒数
       if (record.duration < 60) {
@@ -191,7 +192,10 @@ export default function Home() {
       return `${record.amount} ${record.unit || 'ml'}`;
     }
     return '';
-  };
+  }, []);
+
+  // 使用 useMemo 缓存今日记录列表
+  const displayRecords = useMemo(() => records.slice(0, 10), [records]);
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -315,7 +319,7 @@ export default function Home() {
           最近记录
         </h3>
         <div className="space-y-3">
-          {records.slice(0, 10).map((record) => (
+          {displayRecords.map((record) => (
             <div
               key={record.id}
               onClick={() => navigate(`/edit-record/${record.id}`)}

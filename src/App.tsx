@@ -1,19 +1,39 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useAuthStore } from './stores/authStore';
 import { useFeedingStore } from './stores/feedingStore';
 import Login from './pages/Login';
 import Home from './pages/Home';
-import AddRecord from './pages/AddRecord';
-import EditRecord from './pages/EditRecord';
-import Stats from './pages/Stats';
-import Settings from './pages/Settings';
-import BabyProfile, { AddBaby, FamilySettings, ReminderSettings, EditBaby } from './pages/BabyProfile';
-import AccountSettings from './pages/AccountSettings';
+
+// 延迟加载非关键组件
+const AddRecord = lazy(() => import('./pages/AddRecord'));
+const EditRecord = lazy(() => import('./pages/EditRecord'));
+const Stats = lazy(() => import('./pages/Stats'));
+const Settings = lazy(() => import('./pages/Settings'));
+const BabyProfile = lazy(() => import('./pages/BabyProfile').then(m => ({ default: m.default })));
+const AddBaby = lazy(() => import('./pages/BabyProfile').then(m => ({ default: m.AddBaby })));
+const FamilySettings = lazy(() => import('./pages/BabyProfile').then(m => ({ default: m.FamilySettings })));
+const ReminderSettings = lazy(() => import('./pages/BabyProfile').then(m => ({ default: m.ReminderSettings })));
+const EditBaby = lazy(() => import('./pages/BabyProfile').then(m => ({ default: m.EditBaby })));
+const AccountSettings = lazy(() => import('./pages/AccountSettings'));
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+}
+
+// Loading 组件
+function LoadingFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center gap-3">
+        <span className="material-symbols-outlined animate-spin text-primary" style={{ fontSize: '48px' }}>
+          progress_activity
+        </span>
+        <p className="text-zinc-600 dark:text-zinc-400">加载中...</p>
+      </div>
+    </div>
+  );
 }
 
 function App() {
@@ -55,7 +75,9 @@ function App() {
           path="/add-record"
           element={
             <PrivateRoute>
-              <AddRecord />
+              <Suspense fallback={<LoadingFallback />}>
+                <AddRecord />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -63,7 +85,9 @@ function App() {
           path="/edit-record/:id"
           element={
             <PrivateRoute>
-              <EditRecord />
+              <Suspense fallback={<LoadingFallback />}>
+                <EditRecord />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -71,7 +95,9 @@ function App() {
           path="/stats"
           element={
             <PrivateRoute>
-              <Stats />
+              <Suspense fallback={<LoadingFallback />}>
+                <Stats />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -79,7 +105,9 @@ function App() {
           path="/settings"
           element={
             <PrivateRoute>
-              <Settings />
+              <Suspense fallback={<LoadingFallback />}>
+                <Settings />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -87,7 +115,9 @@ function App() {
           path="/baby-profile"
           element={
             <PrivateRoute>
-              <BabyProfile />
+              <Suspense fallback={<LoadingFallback />}>
+                <BabyProfile />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -95,7 +125,9 @@ function App() {
           path="/add-baby"
           element={
             <PrivateRoute>
-              <AddBaby />
+              <Suspense fallback={<LoadingFallback />}>
+                <AddBaby />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -103,7 +135,9 @@ function App() {
           path="/edit-baby/:id"
           element={
             <PrivateRoute>
-              <EditBaby />
+              <Suspense fallback={<LoadingFallback />}>
+                <EditBaby />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -111,7 +145,9 @@ function App() {
           path="/family-settings"
           element={
             <PrivateRoute>
-              <FamilySettings />
+              <Suspense fallback={<LoadingFallback />}>
+                <FamilySettings />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -119,7 +155,9 @@ function App() {
           path="/reminder-settings"
           element={
             <PrivateRoute>
-              <ReminderSettings />
+              <Suspense fallback={<LoadingFallback />}>
+                <ReminderSettings />
+              </Suspense>
             </PrivateRoute>
           }
         />
@@ -127,7 +165,9 @@ function App() {
           path="/account-settings"
           element={
             <PrivateRoute>
-              <AccountSettings />
+              <Suspense fallback={<LoadingFallback />}>
+                <AccountSettings />
+              </Suspense>
             </PrivateRoute>
           }
         />

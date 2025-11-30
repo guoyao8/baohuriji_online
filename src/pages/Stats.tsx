@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { feedingService } from '@/services/feeding';
 import { useFeedingStore } from '@/stores/feedingStore';
@@ -19,9 +19,9 @@ export default function Stats() {
 
   useEffect(() => {
     loadStats();
-  }, [currentDate, babies, viewMode]);
+  }, [currentDate, babies, viewMode]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       const dateStr = format(currentDate, 'yyyy-MM-dd');
       const CACHE_DURATION = 5 * 60 * 1000; // 延长到5分钟缓存
@@ -102,15 +102,15 @@ export default function Stats() {
       console.error('Failed to load stats:', error);
       setIsLoading(false);
     }
-  };
+  }, [currentDate, viewMode, babies, statsCache, trendCache]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const goToPrevious = () => {
+  const goToPrevious = useCallback(() => {
     setCurrentDate((prev) => subDays(prev, viewMode === 'day' ? 1 : 7));
-  };
+  }, [viewMode]);
 
-  const goToNext = () => {
+  const goToNext = useCallback(() => {
     setCurrentDate((prev) => addDays(prev, viewMode === 'day' ? 1 : 7));
-  };
+  }, [viewMode]);
 
   // 使用 useMemo 缓存最大值计算
   const maxAmount = useMemo(() => {
