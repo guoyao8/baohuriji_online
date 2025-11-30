@@ -15,7 +15,6 @@ export const register = async (req, res) => {
 
     const hashedPassword = await hashPassword(password);
     const userId = uuidv4();
-    const familyId = uuidv4();
 
     // 使用 Supabase 客户端
     if (supabase) {
@@ -47,26 +46,57 @@ export const register = async (req, res) => {
 
       if (userError) throw userError;
 
-      // 创建家庭
-      const { error: familyError } = await supabase
-        .from('Family')
-        .insert({
-          id: familyId,
-          name: `${username}的家庭`,
-          createdBy: userId,
-          createdAt: new Date().toISOString(),
-        });
+      let targetFamilyId = null;
+      let userRole = 'admin';
 
-      if (familyError) throw familyError;
+      // 如果提供了邀请码，尝试加入现有家庭
+      if (inviteCode) {
+        console.log('使用邀请码加入家庭:', inviteCode);
+        
+        const { data: family, error: familyError } = await supabase
+          .from('Family')
+          .select('id')
+          .eq('inviteCode', inviteCode)
+          .single();
+
+        if (family) {
+          console.log('找到家庭:', family.id);
+          targetFamilyId = family.id;
+          userRole = 'member'; // 通过邀请码注册的用户为普通成员
+        } else {
+          console.log('邀请码无效，将创建新家庭');
+        }
+      }
+
+      // 如果没有找到家庭，创建新的
+      if (!targetFamilyId) {
+        console.log('创建新家庭');
+        const familyId = uuidv4();
+        
+        const { error: familyError } = await supabase
+          .from('Family')
+          .insert({
+            id: familyId,
+            name: `${username}的家庭`,
+            createdBy: userId,
+            createdAt: new Date().toISOString(),
+          });
+
+        if (familyError) throw familyError;
+        
+        targetFamilyId = familyId;
+        userRole = 'admin';
+      }
 
       // 添加家庭成员
+      console.log('添加到家庭:', { familyId: targetFamilyId, role: userRole });
       const { error: memberError } = await supabase
         .from('FamilyMember')
         .insert({
           id: uuidv4(),
-          familyId: familyId,
+          familyId: targetFamilyId,
           userId: userId,
-          role: 'admin',
+          role: userRole,
           nickname: username,
           joinedAt: new Date().toISOString(),
         });
@@ -75,7 +105,7 @@ export const register = async (req, res) => {
 
       const token = generateToken(userId);
 
-      console.log('注册完成 (Supabase)');
+      console.log('注册完成 (Supabase)', { userId, familyId: targetFamilyId, role: userRole });
       return res.status(201).json({ token, user });
     }
 
@@ -110,26 +140,59 @@ export const register = async (req, res) => {
 
     console.log('用户创建成功:', user.id);
 
-    // 创建家庭
-    console.log('创建新家庭...');
-    const family = await prisma.family.create({
-      data: {
-        name: `${username}的家庭`,
-        createdBy: user.id,
-        members: {
-          create: {
-            userId: user.id,
-            role: 'admin',
-            nickname: username,
+    let targetFamilyId = null;
+    let userRole = 'admin';
+
+    // 如果提供了邀请码，尝试加入现有家庭
+    if (inviteCode) {
+      console.log('使用邀请码加入家庭:', inviteCode);
+      
+      const family = await prisma.family.findUnique({
+        where: { inviteCode },
+      });
+
+      if (family) {
+        console.log('找到家庭:', family.id);
+        targetFamilyId = family.id;
+        userRole = 'member';
+      } else {
+        console.log('邀请码无效，将创建新家庭');
+      }
+    }
+
+    // 如果没有找到家庭，创建新的
+    if (!targetFamilyId) {
+      console.log('创建新家庭...');
+      const family = await prisma.family.create({
+        data: {
+          name: `${username}的家庭`,
+          createdBy: user.id,
+          members: {
+            create: {
+              userId: user.id,
+              role: 'admin',
+              nickname: username,
+            },
           },
         },
-      },
-    });
-    console.log('家庭创建成功:', family.id);
+      });
+      console.log('家庭创建成功:', family.id);
+    } else {
+      // 加入现有家庭
+      console.log('加入现有家庭:', targetFamilyId);
+      await prisma.familyMember.create({
+        data: {
+          familyId: targetFamilyId,
+          userId: user.id,
+          role: userRole,
+          nickname: username,
+        },
+      });
+    }
 
     const token = generateToken(user.id);
 
-    console.log('注册完成 (Prisma)');
+    console.log('注册完成 (Prisma)', { userId: user.id, role: userRole });
     res.status(201).json({
       token,
       user,
