@@ -72,6 +72,45 @@ export const createBaby = async (req, res) => {
       return res.status(400).json({ error: '缺少必填字段' });
     }
 
+    // 使用 Supabase
+    if (supabase) {
+      // 获取用户的家庭
+      const { data: familyMember, error: memberError } = await supabase
+        .from('FamilyMember')
+        .select('familyId')
+        .eq('userId', req.user.id)
+        .limit(1)
+        .single();
+
+      if (memberError || !familyMember) {
+        return res.status(404).json({ error: '用户不属于任何家庭' });
+      }
+
+      const { data: baby, error: babyError } = await supabase
+        .from('Baby')
+        .insert({
+          id: uuidv4(),
+          familyId: familyMember.familyId,
+          name,
+          gender,
+          birthDate: new Date(birthDate).toISOString(),
+          avatarUrl,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (babyError) throw babyError;
+
+      return res.status(201).json(baby);
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
+
     // 获取用户的家庭
     const familyMember = await prisma.familyMember.findFirst({
       where: { userId: req.user.id },
@@ -102,6 +141,56 @@ export const updateBaby = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, gender, birthDate, avatarUrl } = req.body;
+
+    // 使用 Supabase
+    if (supabase) {
+      // 先获取宝宝信息验证权限
+      const { data: baby } = await supabase
+        .from('Baby')
+        .select('familyId')
+        .eq('id', id)
+        .single();
+
+      if (!baby) {
+        return res.status(404).json({ error: '宝宝不存在' });
+      }
+
+      // 验证用户是否属于该家庭
+      const { data: member } = await supabase
+        .from('FamilyMember')
+        .select('id')
+        .eq('familyId', baby.familyId)
+        .eq('userId', req.user.id)
+        .single();
+
+      if (!member) {
+        return res.status(403).json({ error: '无权修改该宝宝档案' });
+      }
+
+      const updateData = {
+        updatedAt: new Date().toISOString(),
+      };
+      if (name) updateData.name = name;
+      if (gender) updateData.gender = gender;
+      if (birthDate) updateData.birthDate = new Date(birthDate).toISOString();
+      if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
+
+      const { data: updatedBaby, error } = await supabase
+        .from('Baby')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return res.json(updatedBaby);
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
 
     // 验证宝宝是否属于用户的家庭
     const baby = await prisma.baby.findFirst({
@@ -141,6 +230,46 @@ export const updateBaby = async (req, res) => {
 export const deleteBaby = async (req, res) => {
   try {
     const { id } = req.params;
+
+    // 使用 Supabase
+    if (supabase) {
+      // 获取宝宝信息
+      const { data: baby } = await supabase
+        .from('Baby')
+        .select('familyId')
+        .eq('id', id)
+        .single();
+
+      if (!baby) {
+        return res.status(404).json({ error: '宝宝不存在' });
+      }
+
+      // 验证用户是否是管理员
+      const { data: member } = await supabase
+        .from('FamilyMember')
+        .select('role')
+        .eq('familyId', baby.familyId)
+        .eq('userId', req.user.id)
+        .single();
+
+      if (!member || member.role !== 'admin') {
+        return res.status(403).json({ error: '无权删除该宝宝档案' });
+      }
+
+      const { error } = await supabase
+        .from('Baby')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      return res.status(204).send();
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
 
     const baby = await prisma.baby.findFirst({
       where: {

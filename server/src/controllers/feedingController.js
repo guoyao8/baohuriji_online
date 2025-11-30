@@ -1,4 +1,6 @@
 import prisma from '../config/database.js';
+import supabase from '../config/supabase.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export const createRecord = async (req, res) => {
   try {
@@ -6,6 +8,63 @@ export const createRecord = async (req, res) => {
 
     if (!babyId || !feedingType || !feedingTime) {
       return res.status(400).json({ error: '缺少必填字段' });
+    }
+
+    // 使用 Supabase
+    if (supabase) {
+      // 验证宝宝是否存在且用户有权访问
+      const { data: baby } = await supabase
+        .from('Baby')
+        .select('familyId')
+        .eq('id', babyId)
+        .single();
+
+      if (!baby) {
+        return res.status(404).json({ error: '宝宝不存在' });
+      }
+
+      const { data: member } = await supabase
+        .from('FamilyMember')
+        .select('id')
+        .eq('familyId', baby.familyId)
+        .eq('userId', req.user.id)
+        .single();
+
+      if (!member) {
+        return res.status(403).json({ error: '无权访问该宝宝' });
+      }
+
+      const recordId = uuidv4();
+      const { data: record, error } = await supabase
+        .from('FeedingRecord')
+        .insert({
+          id: recordId,
+          babyId,
+          familyId: baby.familyId,
+          recordedBy: req.user.id,
+          feedingType,
+          amount: amount ? parseFloat(amount) : null,
+          unit,
+          duration: duration ? parseInt(duration) : null,
+          feedingTime: new Date(feedingTime).toISOString(),
+          note,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return res.status(201).json({
+        ...record,
+        recordedByName: req.user.username,
+      });
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
     }
 
     // 验证宝宝是否属于用户的家庭
