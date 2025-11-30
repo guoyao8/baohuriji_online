@@ -5,10 +5,13 @@ export const register = async (req, res) => {
   try {
     const { username, password, inviteCode } = req.body;
 
+    console.log('注册请求:', { username, hasPassword: !!password, inviteCode });
+
     if (!username || !password) {
       return res.status(400).json({ error: '用户名和密码不能为空' });
     }
 
+    console.log('检查用户是否存在...');
     const existingUser = await prisma.user.findUnique({
       where: { username },
     });
@@ -17,8 +20,10 @@ export const register = async (req, res) => {
       return res.status(400).json({ error: '用户名已存在' });
     }
 
+    console.log('哈希密码...');
     const hashedPassword = await hashPassword(password);
 
+    console.log('创建用户...');
     const user = await prisma.user.create({
       data: {
         username,
@@ -31,6 +36,8 @@ export const register = async (req, res) => {
         createdAt: true,
       },
     });
+
+    console.log('用户创建成功:', user.id);
 
     let familyId;
 
@@ -74,6 +81,7 @@ export const register = async (req, res) => {
       }
     } else {
       // 没有邀请码，自动创建家庭
+      console.log('创建新家庭...');
       const family = await prisma.family.create({
         data: {
           name: `${username}的家庭`,
@@ -88,17 +96,27 @@ export const register = async (req, res) => {
         },
       });
       familyId = family.id;
+      console.log('家庭创建成功:', familyId);
     }
 
     const token = generateToken(user.id);
 
+    console.log('注册完成');
     res.status(201).json({
       token,
       user,
     });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: '注册失败' });
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+    });
+    res.status(500).json({ 
+      error: '注册失败',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 };
 
