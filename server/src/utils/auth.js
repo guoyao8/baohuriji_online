@@ -10,9 +10,17 @@ export const comparePassword = async (password, hash) => {
 };
 
 export const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d', // 默认 7 天
-  });
+  const secret = process.env.JWT_SECRET;
+  const expiresIn = process.env.JWT_EXPIRES_IN;
+  
+  const options = {};
+  if (expiresIn) {
+    options.expiresIn = expiresIn;
+  } else {
+    options.expiresIn = '7d'; // 默认 7 天
+  }
+  
+  return jwt.sign({ userId }, secret, options);
 };
 
 export const verifyToken = (token) => {
