@@ -6,15 +6,16 @@ node_compat = true
 [vars]
 ENVIRONMENT = "production"
 
-# SQLPub 数据库绑定
-[[d1_databases]]
-binding = "DB"
-database_name = "baohuriji"
-database_id = "YOUR_D1_DATABASE_ID"  # 需要在部署时替换
+# SQLPub 数据库绑定 (可选，暂时注释)
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "baohuriji"
+# database_id = "YOUR_D1_DATABASE_ID"
 
 # CORS 允许的源
 [env.production.vars]
-ALLOWED_ORIGINS = "https://YOUR_USERNAME.github.io"
+ALLOWED_ORIGINS = "https://guoyao8.github.io"
+JWT_SECRET = "baohuriji-secret-key-2024"
 
 [env.development]
-vars = { ENVIRONMENT = "development", ALLOWED_ORIGINS = "http://localhost:5173" }
+vars = { ENVIRONMENT = "development", ALLOWED_ORIGINS = "http://localhost:5173", JWT_SECRET = "dev-secret-key" }
