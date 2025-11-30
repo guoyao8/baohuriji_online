@@ -11,7 +11,7 @@ export const comparePassword = async (password, hash) => {
 
 export const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d', // 默认 7 天
   });
 };
 
