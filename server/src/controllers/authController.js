@@ -243,6 +243,28 @@ export const updateProfile = async (req, res) => {
   try {
     const { avatarUrl } = req.body;
 
+    // 使用 Supabase
+    if (supabase) {
+      const { data: user, error } = await supabase
+        .from('User')
+        .update({ 
+          avatarUrl,
+          updatedAt: new Date().toISOString() 
+        })
+        .eq('id', req.user.id)
+        .select('id, username, avatarUrl, createdAt')
+        .single();
+
+      if (error) throw error;
+
+      return res.json(user);
+    }
+
+    // 使用 Prisma
+    if (!prisma) {
+      return res.status(500).json({ error: '数据库未配置' });
+    }
+
     const user = await prisma.user.update({
       where: { id: req.user.id },
       data: { avatarUrl },
